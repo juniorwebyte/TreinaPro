@@ -1,0 +1,257 @@
+{
+  "name": "treino-pro",
+  "displayName": "Treino Pro",
+  "description": "Extensao oficial do Treino Pro para treinar exercicios diretamente no VSCode com Norminette, testes automaticos e integracao com a plataforma",
+  "version": "1.0.0",
+  "publisher": "treino-pro",
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Education",
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "treino",
+    "estudos",
+    "C",
+    "shell",
+    "exercicios",
+    "norminette",
+    "preparacao"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "treinoPro.openPanel",
+        "title": "Treino Pro: Abrir Painel de Exercicios",
+        "icon": "$(book)"
+      },
+      {
+        "command": "treinoPro.loadExercise",
+        "title": "Treino Pro: Carregar Exercicio",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "treinoPro.runNorminette",
+        "title": "Treino Pro: Verificar Norminette",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "treinoPro.compileAndTest",
+        "title": "Treino Pro: Compilar e Testar",
+        "icon": "$(play)"
+      },
+      {
+        "command": "treinoPro.submitExercise",
+        "title": "Treino Pro: Enviar Exercicio",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "treinoPro.showHint",
+        "title": "Treino Pro: Mostrar Dica",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "treinoPro.syncProgress",
+        "title": "Treino Pro: Sincronizar Progresso",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "treinoPro.fixNormErrors",
+        "title": "Treino Pro: Corrigir Erros de Norminette",
+        "icon": "$(lightbulb-autofix)"
+      },
+      {
+        "command": "treinoPro.quickFixAction",
+        "title": "Treino Pro: Acao Rapida",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "treinoPro.copilotFix",
+        "title": "Treino Pro: Copilot - Corrigir com IA",
+        "icon": "$(copilot)"
+      },
+      {
+        "command": "treinoPro.copilotExplain",
+        "title": "Treino Pro: Copilot - Explicar Erro",
+        "icon": "$(copilot)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "treino-pro",
+          "title": "Treino Pro",
+          "icon": "assets/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "treino-pro": [
+        {
+          "id": "treinoPro.exercises",
+          "name": "Exercicios"
+        },
+        {
+          "id": "treinoPro.progress",
+          "name": "Progresso"
+        },
+        {
+          "id": "treinoPro.tools",
+          "name": "Ferramentas"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Treino Pro",
+      "properties": {
+        "treinoPro.apiEndpoint": {
+          "type": "string",
+          "default": "https://treino-pro.vercel.app/api",
+          "description": "Endpoint da API do Treino Pro"
+        },
+        "treinoPro.autoSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Salvar progresso automaticamente"
+        },
+        "treinoPro.showNorminetteOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Executar Norminette automaticamente ao salvar arquivos .c"
+        },
+        "treinoPro.workspacePath": {
+          "type": "string",
+          "default": "",
+          "description": "Caminho da pasta de exercicios"
+        },
+        "treinoPro.enableNorminnetteFix": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ativar sugestoes de correcao automatica de Norminette"
+        },
+        "treinoPro.enableCopilotIntegration": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ativar integracao com GitHub Copilot"
+        },
+        "treinoPro.checkMemoryLeaks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Verificar memory leaks com valgrind ao executar testes"
+        },
+        "treinoPro.realTimeValidation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validar codigo em tempo real enquanto digita"
+        },
+        "treinoPro.maxLineLength": {
+          "type": "number",
+          "default": 80,
+          "description": "Comprimento maximo de linha permitido (Norminette)"
+        },
+        "treinoPro.maxNestingDepth": {
+          "type": "number",
+          "default": 25,
+          "description": "Profundidade maxima de aninhamento permitida"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "treinoPro.openPanel",
+        "key": "ctrl+shift+p",
+        "mac": "cmd+shift+p",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "treinoPro.compileAndTest",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorTextFocus && resourceExtname == .c"
+      },
+      {
+        "command": "treinoPro.runNorminette",
+        "key": "ctrl+shift+n",
+        "mac": "cmd+shift+n",
+        "when": "editorTextFocus && resourceExtname == .c"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "treinoPro.compileAndTest",
+          "when": "resourceExtname == .c",
+          "group": "navigation"
+        },
+        {
+          "command": "treinoPro.fixNormErrors",
+          "when": "resourceExtname == .c",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "treinoPro.runNorminette",
+          "when": "resourceExtname == .c",
+          "group": "treinoPro"
+        },
+        {
+          "command": "treinoPro.showHint",
+          "group": "treinoPro"
+        },
+        {
+          "command": "treinoPro.copilotFix",
+          "when": "resourceExtname == .c",
+          "group": "treinoPro@2"
+        },
+        {
+          "command": "treinoPro.copilotExplain",
+          "when": "resourceExtname == .c",
+          "group": "treinoPro@2"
+        }
+      ]
+    },
+    "codeActions": [
+      {
+        "kind": "quickfix",
+        "language": "c",
+        "title": "Corrigir erro de Norminette",
+        "command": "treinoPro.quickFixAction"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0",
+    "@types/prompts": "^2.4.4"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "os": "^0.1.2",
+    "child_process": "^1.0.2",
+    "util": "^0.12.5",
+    "path": "^0.0.1",
+    "fs": "^0.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treino-pro/vscode-extension"
+  },
+  "license": "MIT"
+}
