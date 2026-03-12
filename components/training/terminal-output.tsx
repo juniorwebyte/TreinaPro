@@ -85,42 +85,43 @@ export function TerminalOutput({
   return (
     <div
       className={cn(
-        "flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-terminal",
+        "flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-transparent",
         className,
       )}
       style={{ minHeight: 0 }}
     >
-      {/* Terminal header */}
-      <div className="flex items-center gap-2 border-b border-border bg-secondary/30 px-3 py-2">
-        <Terminal className="size-3.5 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">Terminal</span>
-        <span className="ml-1 font-mono text-[10px] text-muted-foreground/60">
-          ({messages.length} {messages.length === 1 ? "msg" : "msgs"})
+      {/* Terminal header with VSCode-like tab */}
+      <div className="flex items-center border-b border-border bg-slate-900 px-2 py-1 text-slate-200">
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-red-500" />
+          <span className="h-2 w-2 rounded-full bg-amber-400" />
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        </div>
+        <div className="ml-3 overflow-hidden rounded-t-md bg-slate-800 px-2 py-0.5 text-xs font-medium text-white">
+          Terminal • bash
+        </div>
+        <span className="ml-2 font-mono text-[10px] text-slate-400">
+          {messages.length} {messages.length === 1 ? "linha" : "linhas"}
         </span>
         <div className="ml-auto flex items-center gap-2">
           {onClear && (
             <Button
               variant="ghost"
               size="icon"
-              className="size-6"
+              className="size-6 text-slate-300 hover:bg-slate-700"
               onClick={onClear}
               aria-label="Limpar terminal"
             >
               <Trash2 className="size-3" />
             </Button>
           )}
-          <div className="flex gap-1.5">
-            <div className="size-2.5 rounded-full bg-destructive/60" />
-            <div className="size-2.5 rounded-full bg-warning/60" />
-            <div className="size-2.5 rounded-full bg-success/60" />
-          </div>
         </div>
       </div>
 
       {/* Terminal body */}
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto p-3 font-mono text-xs leading-relaxed md:text-[13px]"
+        className="min-h-0 flex-1 overflow-y-auto bg-transparent p-3 font-mono text-xs leading-relaxed text-slate-100 md:text-[13px]"
       >
         {messages.map((msg, i) =>
           msg.type === "separator" ? (

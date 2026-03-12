@@ -9,6 +9,7 @@ import {
   saveEditorTheme,
   getThemeById,
 } from "@/lib/editor-themes"
+import { generateHeader42 } from "@/lib/norminette"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +52,19 @@ export function CodeEditor({
     return value.split("\n").length
   }, [value])
 
+  const [cursorPosition, setCursorPosition] = useState({ line: 1, col: 1 })
+
+  const updateCursorPosition = useCallback(
+    (text: string, position: number) => {
+      const before = text.slice(0, position)
+      const lines = before.split("\n")
+      const line = lines.length
+      const col = lines[lines.length - 1].length + 1
+      setCursorPosition({ line, col })
+    },
+    [],
+  )
+
   const syncScroll = useCallback(() => {
     if (textareaRef.current && lineNumbersRef.current) {
       lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop
@@ -66,9 +80,28 @@ export function CodeEditor({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      const textarea = e.currentTarget
+
+      // Explicit appending/Inserir Header 42 (Ctrl + Alt + H)
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "h") {
+        if (language === "c") {
+          e.preventDefault()
+          if (value.includes("/* ****") && value.includes(":::      ::::::::   */")) {
+            return
+          }
+          const header = generateHeader42("file.c")
+          const withHeader = `${header}\n\n${value}`.trimStart() + "\n"
+          onChange(withHeader)
+          requestAnimationFrame(() => {
+            textarea.selectionStart = textarea.selectionEnd = header.length + 2
+            updateCursorPosition(withHeader, textarea.selectionStart)
+          })
+          return
+        }
+      }
+
       if (e.key === "Tab") {
         e.preventDefault()
-        const textarea = e.currentTarget
         const start = textarea.selectionStart
         const end = textarea.selectionEnd
         const indent = language === "python" ? "    " : "\t"
@@ -78,14 +111,41 @@ export function CodeEditor({
         requestAnimationFrame(() => {
           textarea.selectionStart = textarea.selectionEnd =
             start + indent.length
+          updateCursorPosition(newValue, textarea.selectionEnd)
         })
+        return
       }
+
+      requestAnimationFrame(() => {
+        updateCursorPosition(value, textarea.selectionStart)
+      })
     },
-    [value, onChange, language],
+    [value, onChange, language, updateCursorPosition],
   )
 
   const langLabel =
-    language === "c" ? "C" : language === "shell" ? "Shell" : "Python"
+    language === "c"
+      ? "C"
+      : language === "shell"
+      ? "Shell"
+      : language === "python"
+      ? "Python"
+      : language === "javascript"
+      ? "JavaScript"
+      : language === "html"
+      ? "HTML"
+      : language === "css"
+      ? "CSS"
+      : language === "php"
+      ? "PHP"
+      : "Texto"
+
+  const filename =
+    language === "c"
+      ? "main.c"
+      : language === "shell"
+      ? "script.sh"
+      : "main.py"
 
   // Verificar se tem header 42 (apenas para C)
   const hasHeader42 = language === "c" && value.includes("/* ****") && value.includes(":::      ::::::::   */")
@@ -98,7 +158,19 @@ export function CodeEditor({
       )}
       style={{ minHeight: 0 }}
     >
-      {/* Editor header */}
+      {/* Editor header with VSCode-style tab */}
+      <div className="flex items-center justify-between border-b border-border bg-slate-900 px-2 py-1 text-xs text-slate-300">
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-red-500" />
+          <span className="h-2 w-2 rounded-full bg-amber-400" />
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="ml-2 rounded-t-md border border-border bg-slate-800 px-2 py-0.5 font-mono text-[11px] text-white shadow-sm">
+            {filename}
+          </span>
+        </div>
+        <span className="text-xs text-slate-400">{langLabel} • {lineCount} {lineCount === 1 ? "linha" : "linhas"}</span>
+      </div>
+
       <div 
         className="flex items-center justify-between border-b px-3 py-1.5"
         style={{ 
@@ -107,12 +179,6 @@ export function CodeEditor({
         }}
       >
         <div className="flex items-center gap-2">
-          <span 
-            className="font-mono text-[10px]"
-            style={{ color: theme.lineNumbers }}
-          >
-            {langLabel}
-          </span>
           {language === "c" && (
             <span className={cn(
               "font-mono text-[9px] px-1.5 py-0.5 rounded",
@@ -123,15 +189,17 @@ export function CodeEditor({
               {hasHeader42 ? "Header 42 OK" : "Header 42 Faltando"}
             </span>
           )}
+          <span className="font-mono text-[10px]" style={{ color: theme.lineNumbers }}>
+            {cursorPosition.line}:{cursorPosition.col}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <span 
             className="font-mono text-[10px]"
             style={{ color: theme.lineNumbers }}
           >
-            {lineCount} {lineCount === 1 ? "linha" : "linhas"}
+            {value.length} chars
           </span>
-          
           {/* Theme Picker */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -192,8 +260,13 @@ export function CodeEditor({
         <textarea
           ref={textareaRef}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            onChange(e.target.value)
+            updateCursorPosition(e.target.value, e.target.selectionStart)
+          }}
           onKeyDown={handleKeyDown}
+          onClick={(e) => updateCursorPosition(value, e.currentTarget.selectionStart)}
+          onKeyUp={(e) => updateCursorPosition(value, e.currentTarget.selectionStart)}
           onScroll={syncScroll}
           className="min-h-0 flex-1 resize-none overflow-auto bg-transparent p-3 font-mono text-sm leading-relaxed outline-none md:text-[13px] md:leading-[1.625rem]"
           placeholder={language === "c" 

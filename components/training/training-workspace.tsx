@@ -45,7 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Menu, Code2, ArrowLeft } from "lucide-react"
+import { Menu, Code2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -64,6 +64,8 @@ const INITIAL_MESSAGES: OutputMessage[] = [
   },
 ]
 
+const LANGUAGES: Language[] = ["c", "shell", "python", "javascript", "html", "css", "php"]
+
 export function TrainingWorkspace() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null,
@@ -74,6 +76,8 @@ export function TrainingWorkspace() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeLanguage, setActiveLanguage] = useState<Language>("c")
   const [showCodeModal, setShowCodeModal] = useState(false)
+  const [splitDirection, setSplitDirection] = useState<'horizontal' | 'vertical'>('horizontal')
+  const [showExerciseMenu, setShowExerciseMenu] = useState(true)
   
   // Gamification state
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -104,20 +108,18 @@ export function TrainingWorkspace() {
     setMessages(INITIAL_MESSAGES)
   }, [])
 
+  const toggleSplitDirection = useCallback(() => {
+    setSplitDirection((prev) => (prev === 'horizontal' ? 'vertical' : 'horizontal'))
+  }, [])
+
   const selectExercise = useCallback(
     (ex: Exercise) => {
       setSelectedExercise(ex)
       // Reset hint/solution tracking for new exercise
       setUsedHint(false)
       setUsedSolution(false)
-      // Para linguagem C, adicionar header 42 antes do template
-      if (ex.language === "c") {
-        const filename = `${ex.func}.c`
-        const header = generateHeader42(filename)
-        setCode(`${header}\n\n${ex.template}`)
-      } else {
-        setCode(ex.template)
-      }
+      // Sempre carregar template bruto (header 42 deve ser adicionado com Ctrl+Alt+H cuando for C)
+      setCode(ex.template)
       const initialMessages: OutputMessage[] = [
         {
           type: "command",
@@ -152,14 +154,8 @@ export function TrainingWorkspace() {
   const handleSolution = useCallback(() => {
     if (!selectedExercise) return
     setUsedSolution(true)
-    // Para C, adicionar header 42 na solucao
-    if (selectedExercise.language === "c") {
-      const filename = `${selectedExercise.func}.c`
-      const header = generateHeader42(filename)
-      setCode(`${header}\n\n${selectedExercise.solution}`)
-    } else {
-      setCode(selectedExercise.solution)
-    }
+    // Coloca solucao diretamente (header sera adicionado via atalho no editor para C)
+    setCode(selectedExercise.solution)
     addMessages([
       { type: "separator", text: "" },
       {
@@ -376,22 +372,55 @@ export function TrainingWorkspace() {
 
   const handleReset = useCallback(() => {
     if (!selectedExercise) return
-    // Para C, adicionar header 42 no reset
-    if (selectedExercise.language === "c") {
-      const filename = `${selectedExercise.func}.c`
-      const header = generateHeader42(filename)
-      setCode(`${header}\n\n${selectedExercise.template}`)
-    } else {
-      setCode(selectedExercise.template)
-    }
+    setCode(selectedExercise.template)
     addMessage({ type: "info", text: "Template restaurado." })
   }, [selectedExercise, addMessage])
+
+  const handleInsertHeader = useCallback(() => {
+    if (!selectedExercise || selectedExercise.language !== "c") return
+
+    const header = generateHeader42(`${selectedExercise.func}.c`)
+
+    if (code.includes("/* ****") && code.includes(":::      ::::::::   */")) {
+      addMessage({ type: "info", text: "Header 42 ja presente." })
+      return
+    }
+
+    const newCode = `${header}\n\n${code}`
+    setCode(newCode)
+    addMessage({ type: "success", text: "Header 42 injetado no codigo." })
+  }, [selectedExercise, code, addMessage])
 
   const handleClearTerminal = useCallback(() => {
     setMessages([
       { type: "command", text: "Terminal limpo." },
     ])
   }, [])
+
+  // Navegacao sequencial (proximo/anterior) baseada na linguagem atual
+  const currentLanguageExercises = getExercisesByLanguage(activeLanguage)
+  const currentIndex = selectedExercise
+    ? currentLanguageExercises.findIndex((e) => e.id === selectedExercise.id)
+    : -1
+  const hasPrevExercise = currentIndex > 0
+  const hasNextExercise =
+    currentIndex >= 0 && currentIndex < currentLanguageExercises.length - 1
+
+  const goToPrevExercise = useCallback(() => {
+    if (!selectedExercise || !hasPrevExercise) return
+    const prev = currentLanguageExercises[currentIndex - 1]
+    if (prev) {
+      selectExercise(prev)
+    }
+  }, [selectedExercise, hasPrevExercise, currentLanguageExercises, currentIndex, selectExercise])
+
+  const goToNextExercise = useCallback(() => {
+    if (!selectedExercise || !hasNextExercise) return
+    const next = currentLanguageExercises[currentIndex + 1]
+    if (next) {
+      selectExercise(next)
+    }
+  }, [selectedExercise, hasNextExercise, currentLanguageExercises, currentIndex, selectExercise])
 
   // Left sidebar: Stats (gamification + progress)
   const statsContent = (
@@ -427,81 +456,113 @@ export function TrainingWorkspace() {
 
   return (
     <TooltipProvider>
-      <div className="flex h-[100dvh] flex-col bg-background">
-        {/* Header */}
-        <header className="flex shrink-0 items-center justify-between border-b border-border bg-card px-3 py-2 md:px-6">
-          <div className="flex items-center gap-3">
-            {/* Back to home */}
-            <Link
-              href="/"
-              className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              aria-label="Voltar para a pagina inicial"
-            >
-              <ArrowLeft className="size-5" />
-            </Link>
+      <div className="flex h-dvh flex-col bg-background">
+        {/* Zona fixa de navegacao (header + menu de linguagens) */}
+        <div className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
+          {/* Header */}
+          <header className="flex shrink-0 items-center justify-between px-3 py-2 md:px-6">
+            <div className="flex items-center gap-3">
+              {/* Back to home */}
+              <Link
+                href="/"
+                className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                aria-label="Voltar para a pagina inicial"
+              >
+                <ArrowLeft className="size-5" />
+              </Link>
 
-            <button
-              onClick={goHome}
-              className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
-              aria-label="Voltar para a pagina inicial"
-            >
-              <img
-                src="/images/logo.png"
-                alt="Treino PRO Logo"
-                className="h-16 w-16 rounded-md object-contain md:h-20 md:w-20"
-              />
-              <div className="flex flex-col">
-                <h1 className="text-sm font-bold leading-tight text-foreground md:text-base">
-                  Treino PRO
-                </h1>
-                <span className="hidden text-[10px] leading-tight text-muted-foreground md:inline">
-                  Plataforma de Estudos - 42 SP
-                </span>
-              </div>
-            </button>
-          </div>
+              <button
+                onClick={goHome}
+                className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
+                aria-label="Voltar para a pagina inicial"
+              >
+                <img
+                  src="/images/logo.png"
+                  alt="Treino PRO Logo"
+                  className="h-12 w-12 rounded-md object-contain md:h-16 md:w-16"
+                />
+                <div className="flex flex-col">
+                  <h1 className="text-sm font-bold leading-tight text-foreground md:text-base">
+                    Treino PRO
+                  </h1>
+                  <span className="hidden text-[10px] leading-tight text-muted-foreground md:inline">
+                    Plataforma de Estudos - 42 SP
+                  </span>
+                </div>
+              </button>
+            </div>
 
-          <div className="flex items-center gap-3">
-            {/* Gamification Stats in Header (compact) */}
-            {userProfile && (
-              <div className="hidden md:block">
-                <GamificationStats profile={userProfile} variant="header" />
-              </div>
-            )}
-            <Timer />
-            
-            {/* Mobile menu - Right side */}
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-9 lg:hidden"
-                  aria-label="Abrir menu de exercicios"
-                >
-                  <Menu className="size-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="flex w-[300px] flex-col p-0" aria-describedby="sheet-desc">
-                <SheetHeader className="shrink-0 border-b border-border px-4 py-3">
-                  <SheetTitle className="flex items-center gap-2 text-sm">
-                    <Code2 className="size-4 text-primary" />
-                    Exercicios
-                  </SheetTitle>
-                  <SheetDescription id="sheet-desc" className="sr-only">
-                    Lista de exercicios disponiveis
-                  </SheetDescription>
-                </SheetHeader>
-                {exercisesContent}
-              </SheetContent>
-            </Sheet>
-          </div>
-        </header>
+            <div className="flex items-center gap-3">
+              {/* Gamification Stats in Header (compact) */}
+              {userProfile && (
+                <div className="hidden md:block">
+                  <GamificationStats profile={userProfile} variant="header" />
+                </div>
+              )}
+              <Timer />
+              
+              {/* Mobile menu - Right side */}
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-9 lg:hidden"
+                    aria-label="Abrir menu de exercicios"
+                  >
+                    <Menu className="size-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="flex w-[300px] flex-col p-0" aria-describedby="sheet-desc">
+                  <SheetHeader className="shrink-0 border-b border-border px-4 py-3">
+                    <SheetTitle className="flex items-center gap-2 text-sm">
+                      <Code2 className="size-4 text-primary" />
+                      Exercicios
+                    </SheetTitle>
+                    <SheetDescription id="sheet-desc" className="sr-only">
+                      Lista de exercicios disponiveis
+                    </SheetDescription>
+                  </SheetHeader>
+                  {exercisesContent}
+                </SheetContent>
+              </Sheet>
+            </div>
+          </header>
+
+          {/* Top exercises menu - sempre visivel para navegar entre conjuntos de exercicios */}
+          <nav className="border-t border-border/60 bg-card/90">
+            <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-x-auto px-3 py-2 md:px-6">
+              {LANGUAGES.map((lang) => {
+                const count = getExercisesByLanguage(lang).length
+                const isActive = lang === activeLanguage
+
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => setActiveLanguage(lang)}
+                    className={`flex items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                      isActive
+                        ? "border-primary/60 bg-primary/10 text-primary"
+                        : "border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="font-mono text-sm font-semibold">
+                      {getLanguageLabel(lang)}
+                    </span>
+                    <span className="text-[10px] opacity-80">
+                      {count} exercicios
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </nav>
+        </div>
 
         {/* Main content */}
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Left sidebar - Stats (gamification + progress) */}
-          <aside className="hidden w-[260px] shrink-0 overflow-hidden border-r border-border bg-card lg:flex lg:flex-col">
+          <aside className="hidden md:flex w-[260px] shrink-0 overflow-hidden border-r border-border bg-card md:flex-col">
             {statsContent}
           </aside>
 
@@ -520,22 +581,30 @@ export function TrainingWorkspace() {
                 onExplanation={handleExplanation}
                 onReset={handleReset}
                 onViewCode={handleViewCode}
+                onInsertHeader={handleInsertHeader}
+                onToggleSplit={toggleSplitDirection}
+                splitDirection={splitDirection}
                 onClearTerminal={handleClearTerminal}
+                onNextExercise={goToNextExercise}
+                onPrevExercise={goToPrevExercise}
+                hasNext={hasNextExercise}
+                hasPrev={hasPrevExercise}
+                isCompleted={completedIds.has(selectedExercise.id)}
               />
             ) : (
               <div className="flex-1 overflow-y-auto p-3 md:p-4">
                 <EmptyState onSelectLanguage={setActiveLanguage} />
               </div>
-)}
-            </main>
+            )}
+          </main>
 
           {/* Right sidebar - Exercises list */}
-          <aside className="hidden w-[260px] shrink-0 overflow-hidden border-l border-border bg-card lg:flex lg:flex-col">
+          <aside className="hidden md:flex w-[260px] h-full shrink-0 overflow-y-auto border-l border-border bg-card md:flex-col">
             {exercisesContent}
           </aside>
         </div>
 
-        {/* Footer - hidden when exercise active on mobile for space */}
+        {/* Footer - reduzido em mobile quando ha exercicio ativo para priorizar area de estudo */}
         {!selectedExercise && <Footer />}
         <div className="hidden md:block">
           {selectedExercise && <Footer />}
@@ -619,6 +688,14 @@ interface ExerciseWorkAreaProps {
   onReset: () => void
   onViewCode: () => void
   onClearTerminal: () => void
+  onInsertHeader: () => void
+  onToggleSplit: () => void
+  splitDirection: "horizontal" | "vertical"
+  onNextExercise: () => void
+  onPrevExercise: () => void
+  hasNext: boolean
+  hasPrev: boolean
+  isCompleted: boolean
 }
 
 function ExerciseWorkArea({
@@ -634,38 +711,75 @@ function ExerciseWorkArea({
   onReset,
   onViewCode,
   onClearTerminal,
+  onInsertHeader,
+  onToggleSplit,
+  splitDirection,
+  onNextExercise,
+  onPrevExercise,
+  hasNext,
+  hasPrev,
+  isCompleted,
 }: ExerciseWorkAreaProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 p-2 md:gap-3 md:p-4">
-      {/* Info + buttons: compact, auto-fit */}
-      <div className="shrink-0">
-        <div className="flex flex-col gap-2">
-          <ExerciseDetail exercise={exercise} />
-          <ActionButtons
-            onHint={onHint}
-            onSolution={onSolution}
-            onCheck={onCheck}
-            onClear={onClear}
-            onExplanation={onExplanation}
-            onReset={onReset}
-            onViewCode={onViewCode}
-            disabled={false}
-          />
+      {/* Info + navegacao + acoes */}
+      <div className="shrink-0 space-y-2">
+        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+          <div className="flex-1">
+            <ExerciseDetail exercise={exercise} isCompleted={isCompleted} />
+          </div>
+          {/* Navegacao sequencial de exercicios */}
+          <div className="mt-2 flex items-center justify-end gap-2 md:mt-0 md:min-w-[180px]">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPrevExercise}
+              disabled={!hasPrev}
+              className="h-8 px-2 text-xs"
+            >
+              <ChevronLeft className="mr-1 size-3" />
+              Anterior
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onNextExercise}
+              disabled={!hasNext}
+              className="h-8 px-2 text-xs"
+            >
+              Proximo
+              <ChevronRight className="ml-1 size-3" />
+            </Button>
+          </div>
         </div>
+
+        <ActionButtons
+          onHint={onHint}
+          onSolution={onSolution}
+          onCheck={onCheck}
+          onClear={onClear}
+          onExplanation={onExplanation}
+          onReset={onReset}
+          onViewCode={onViewCode}
+          onInsertHeader={onInsertHeader}
+          onToggleSplit={onToggleSplit}
+          splitDirection={splitDirection}
+          disabled={false}
+        />
       </div>
 
       {/* Desktop: side-by-side code + terminal | Mobile: stacked */}
-      <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row lg:gap-3">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[3fr_2fr] lg:gap-3">
         <CodeEditor
           value={code}
           onChange={onCodeChange}
           language={exercise.language}
-          className="min-h-[120px] flex-[3] lg:min-h-0"
+          className="min-h-[180px] lg:min-h-0"
         />
         <TerminalOutput
           messages={messages}
           onClear={onClearTerminal}
-          className="min-h-[100px] flex-[2] lg:min-h-0"
+          className="min-h-[140px] lg:min-h-0"
         />
       </div>
     </div>

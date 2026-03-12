@@ -1,5 +1,5 @@
 export type Difficulty = "iniciante" | "intermediario" | "avancado"
-export type Language = "c" | "shell" | "python"
+export type Language = "c" | "shell" | "python" | "javascript" | "html" | "css" | "php"
 
 export interface Exercise {
   id: number
@@ -1764,10 +1764,180 @@ print(is_palindrome("A sacada da casa"))    # True`,
   },
 ]
 
+const javascriptExercises: Exercise[] = [
+  {
+    id: 301,
+    title: "Somar Array",
+    func: "sumArray",
+    description: "Retorne a soma de todos os numeros em uma array.",
+    concept:
+      "Use reduce para acumular valores. Para aprender funcoes de ordem superior e iteracao funcional em JS.",
+    hint: "array.reduce((acc, cur) => acc + cur, 0)",
+    solution: `function sumArray(arr) {
+  return arr.reduce((total, value) => total + value, 0)
+}`,
+    template: `// Calcule a soma de um array de números
+function sumArray(arr) {
+  // Seu código aqui
+}`,
+    difficulty: "iniciante",
+    language: "javascript",
+    tags: ["array", "reduce", "funcoes"],
+    checkPatterns: ["reduce", "return"],
+    explanation: [
+      "1. Comece com total 0.",
+      "2. Use reduce para somar cada elemento.",
+      "3. Retorne o valor final.",
+    ],
+    exampleUsage: `console.log(sumArray([1,2,3,4])) // 10`,
+  },
+  {
+    id: 302,
+    title: "Filtrar Pares",
+    func: "filterEven",
+    description: "Retorne somente os numeros pares de um array.",
+    concept: "Use filter para retornar um novo array com valores que satisfazem a condicao.",
+    hint: "arr.filter(n => n % 2 === 0)",
+    solution: `function filterEven(arr) {
+  return arr.filter((num) => num % 2 === 0)
+}`,
+    template: `// Retorne apenas os numeros pares de um array
+function filterEven(arr) {
+  // Seu código aqui
+}`,
+    difficulty: "iniciante",
+    language: "javascript",
+    tags: ["array", "filter", "modulo"],
+    checkPatterns: ["filter", "% 2"],
+    explanation: [
+      "1. Use filter para selecionar valores.",
+      "2. Condição pares: num % 2 === 0.",
+      "3. Retorne o novo array.",
+    ],
+    exampleUsage: `console.log(filterEven([1,2,3,4,5,6])) // [2,4,6]`,
+  },
+]
+
+const htmlExercises: Exercise[] = [
+  {
+    id: 401,
+    title: "Estrutura HTML Basica",
+    func: "basicHtml",
+    description: "Crie a estrutura com doctype, html, head e body.",
+    concept: "Compreender a base de um documento HTML semântico.",
+    hint: "Use <!DOCTYPE html>, <html>, <head><title></title></head>, <body>.",
+    solution: `<!DOCTYPE html>
+<html lang=\"pt-BR\">
+<head>
+  <meta charset=\"UTF-8\">
+  <title>Documento</title>
+</head>
+<body>
+  <h1>Olá Treina Pro</h1>
+</body>
+</html>`,
+    template: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Seu Exercício</title>
+</head>
+<body>
+  <!-- Seu código aqui -->
+</body>
+</html>`,
+    difficulty: "iniciante",
+    language: "html",
+    tags: ["html", "estrutura", "semantica"],
+    checkPatterns: ["<!DOCTYPE html>", "<html", "<body>"],
+    explanation: [
+      "1. DOCTYPE informa o modo padrão (standards).",
+      "2. <html lang='pt-BR'> define idioma.",
+      "3. <head> contém metadados (charset, título).",
+      "4. <body> contém conteúdo renderizado.",
+    ],
+    exampleUsage: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Treina Pro</title>
+</head>
+<body>
+  <h1>Olá, HTML!</h1>
+</body>
+</html>`,
+  },
+]
+
+const cssExercises: Exercise[] = [
+  {
+    id: 501,
+    title: "Layout Flexbox",
+    func: "flexLayout",
+    description: "Crie um container flex com itens centralizados tanto no eixo x como y.",
+    concept: "Entender display:flex e alinhamentos justify-content e align-items.",
+    hint: "use display: flex; justify-content: center; align-items: center;",
+    solution: `#container { display: flex; justify-content: center; align-items: center; }`,
+    template: `#container {
+  /* Seu código aqui */
+}`,
+    difficulty: "iniciante",
+    language: "css",
+    tags: ["flexbox", "layout", "css"],
+    checkPatterns: ["display\s*:\s*flex", "justify-content", "align-items"],
+    explanation: [
+      "1. display: flex transforma o elemento em container flexível.",
+      "2. justify-content centraliza no eixo principal.",
+      "3. align-items centraliza no eixo cruzado.",
+    ],
+    exampleUsage: `#container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}`,
+  },
+]
+
+const phpExercises: Exercise[] = [
+  {
+    id: 601,
+    title: "Palindrome PHP",
+    func: "isPalindrome",
+    description: "Crie função para verificar palíndromo ignorando espaços e maiúsculas.",
+    concept: "Manipulação de strings em PHP e funções nativas como strtolower e str_replace.",
+    hint: "Use str_replace(' ', '', $text) e strrev().",
+    solution: `<?php
+function isPalindrome($text) {
+  $normalized = strtolower(str_replace(' ', '', $text));
+  return $normalized === strrev($normalized);
+}`,
+    template: `<?php
+function isPalindrome($text) {
+  // Seu código aqui
+}`,
+    difficulty: "iniciante",
+    language: "php",
+    tags: ["php", "string", "função"],
+    checkPatterns: ["strtolower", "strrev", "return"],
+    explanation: [
+      "1. Remover espaços com str_replace.",
+      "2. Converter para minúsculas com strtolower.",
+      "3. Comparar string com strrev.",
+    ],
+    exampleUsage: `<?php
+var_dump(isPalindrome('arara')); // true
+var_dump(isPalindrome('Hello')); // false`,
+  },
+]
+
 export const exercises: Exercise[] = [
   ...cExercises,
   ...shellExercises,
   ...pythonExercises,
+  ...javascriptExercises,
+  ...htmlExercises,
+  ...cssExercises,
+  ...phpExercises,
 ]
 
 export function getExercisesByLanguage(lang: Language): Exercise[] {
@@ -1786,6 +1956,14 @@ export function getLanguageLabel(lang: Language): string {
       return "Shell"
     case "python":
       return "Python"
+    case "javascript":
+      return "JavaScript"
+    case "html":
+      return "HTML"
+    case "css":
+      return "CSS"
+    case "php":
+      return "PHP"
   }
 }
 
@@ -1797,6 +1975,14 @@ export function getLanguageColor(lang: Language): string {
       return "text-accent"
     case "python":
       return "text-warning"
+    case "javascript":
+      return "text-yellow-500"
+    case "html":
+      return "text-orange-500"
+    case "css":
+      return "text-blue-500"
+    case "php":
+      return "text-indigo-400"
   }
 }
 

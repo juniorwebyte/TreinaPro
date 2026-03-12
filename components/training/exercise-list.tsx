@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -22,7 +23,7 @@ interface ExerciseListProps {
   className?: string
 }
 
-const LANGUAGES: Language[] = ["c", "shell", "python"]
+const LANGUAGES: Language[] = ["c", "shell", "python", "javascript", "html", "css", "php"]
 
 function DiffBadge({ diff }: { diff: Difficulty }) {
   const variants: Record<Difficulty, string> = {
@@ -48,6 +49,10 @@ function LangBadge({ lang }: { lang: Language }) {
     c: "bg-primary/15 text-primary border-primary/20",
     shell: "bg-accent/15 text-accent border-accent/20",
     python: "bg-warning/15 text-warning border-warning/20",
+    javascript: "bg-yellow-500/15 text-yellow-500 border-yellow-500/20",
+    html: "bg-orange-500/15 text-orange-500 border-orange-500/20",
+    css: "bg-blue-500/15 text-blue-500 border-blue-500/20",
+    php: "bg-indigo-400/15 text-indigo-400 border-indigo-400/20",
   }
 
   return (
@@ -70,45 +75,67 @@ export function ExerciseList({
   onLanguageChange,
   className,
 }: ExerciseListProps) {
-  const filteredExercises = getExercisesByLanguage(activeLanguage)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [tagFilter, setTagFilter] = useState("")
+
+  const availableTags = useMemo(() => {
+    const tags = new Set<string>()
+    getExercisesByLanguage(activeLanguage).forEach((e) => {
+      e.tags.forEach((t) => tags.add(t))
+    })
+    return Array.from(tags).sort()
+  }, [activeLanguage])
+
+  const filteredExercises = useMemo(() => {
+    return getExercisesByLanguage(activeLanguage).filter((exercise) => {
+      const term = searchTerm.trim().toLowerCase()
+      const titleMatch = term === "" || exercise.title.toLowerCase().includes(term)
+      const descriptionMatch = term === "" || exercise.description.toLowerCase().includes(term)
+      const conceptMatch = term === "" || exercise.concept.toLowerCase().includes(term)
+      const tagMatch =
+        tagFilter === "" || exercise.tags.some((tag) => tag === tagFilter)
+
+      return (titleMatch || descriptionMatch || conceptMatch) && tagMatch
+    })
+  }, [activeLanguage, searchTerm, tagFilter])
+
   const filteredCompleted = filteredExercises.filter((e) =>
     completedIds.has(e.id),
   ).length
 
   return (
-    <div className={cn("flex flex-col", className)}>
-      {/* Language tabs */}
-      <div className="flex gap-1 px-3 pb-3">
-        {LANGUAGES.map((lang) => {
-          const count = getExercisesByLanguage(lang).length
-          const isActive = lang === activeLanguage
-          return (
-            <button
-              key={lang}
-              onClick={() => onLanguageChange(lang)}
-              className={cn(
-                "flex min-h-[44px] flex-1 flex-col items-center justify-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-                isActive
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-              )}
-              aria-current={isActive ? "true" : undefined}
-            >
-              <span className="font-bold">{getLanguageLabel(lang)}</span>
-              <span className="text-[10px] opacity-70">{count} ex.</span>
-            </button>
-          )
-        })}
-      </div>
+    <div className={cn("flex flex-col h-full min-h-0", className)}>
+      {/* Count header and filters */}
+      <div className="flex flex-col gap-2 px-4 pb-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {getLanguageLabel(activeLanguage)}
+          </span>
+          <Badge variant="secondary" className="text-[10px]">
+            {filteredCompleted}/{filteredExercises.length}
+          </Badge>
+        </div>
 
-      {/* Count header */}
-      <div className="flex items-center justify-between px-4 pb-2">
-        <span className="text-xs text-muted-foreground">
-          {getLanguageLabel(activeLanguage)}
-        </span>
-        <Badge variant="secondary" className="text-[10px]">
-          {filteredCompleted}/{filteredExercises.length}
-        </Badge>
+        <div className="flex gap-2">
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar exercicio..."
+            className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground outline-none focus:border-primary"
+          />
+          <select
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            className="rounded border border-border bg-background px-2 py-1 text-xs text-foreground outline-none focus:border-primary"
+          >
+            <option value="">Todas tags</option>
+            {availableTags.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* List - use native scroll instead of ScrollArea for reliable flex behavior */}
@@ -117,16 +144,17 @@ export function ExerciseList({
           {filteredExercises.map((ex) => {
             const isCompleted = completedIds.has(ex.id)
             const isSelected = selectedId === ex.id
+            const mainTag = ex.tags[0]
 
             return (
               <button
                 key={ex.id}
                 onClick={() => onSelect(ex)}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors",
-                  "min-h-[44px] shrink-0",
+                  "group flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors",
+                  "min-h-[52px] shrink-0",
                   isSelected
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/40"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 )}
                 aria-label={`Exercicio ${ex.title}${isCompleted ? ", concluido" : ""}`}
@@ -137,12 +165,22 @@ export function ExerciseList({
                 ) : (
                   <Circle className="size-4 shrink-0" />
                 )}
-                <div className="flex flex-1 flex-col gap-1">
-                  <span className="font-mono text-sm font-medium">
+                <div className="flex flex-1 flex-col gap-1 overflow-hidden">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="line-clamp-1 font-mono text-sm font-medium">
                     {ex.title}
-                  </span>
-                  <div className="flex gap-1">
+                    </span>
                     <DiffBadge diff={ex.difficulty} />
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    {mainTag && (
+                      <span className="max-w-[120px] truncate rounded-full bg-secondary px-2 py-0.5">
+                        {mainTag}
+                      </span>
+                    )}
+                    <span className="ml-auto text-[10px] opacity-70 group-hover:opacity-100">
+                      #{ex.id}
+                    </span>
                   </div>
                 </div>
               </button>

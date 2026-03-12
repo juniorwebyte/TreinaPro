@@ -105,6 +105,24 @@ export const EDITOR_THEMES: EditorTheme[] = [
     variable: "#f8f8f2",
     operator: "#f92672",
   },
+  {
+    id: "cristal-glass",
+    name: "Cristal Glass",
+    // Fundo totalmente transparente para efeito de vidro
+    bg: "transparent",
+    text: "rgba(248, 250, 252, 0.92)",
+    lineNumbers: "rgba(148, 163, 184, 0.9)",
+    lineNumbersBg: "transparent",
+    selection: "rgba(59, 130, 246, 0.28)",
+    cursor: "rgba(248, 250, 252, 0.95)",
+    comment: "rgba(148, 163, 184, 0.8)",
+    keyword: "rgba(244, 114, 182, 0.9)",
+    string: "rgba(52, 211, 153, 0.9)",
+    number: "rgba(250, 204, 21, 0.9)",
+    function: "rgba(56, 189, 248, 0.9)",
+    variable: "rgba(248, 250, 252, 0.92)",
+    operator: "rgba(248, 250, 252, 0.8)",
+  },
 ]
 
 // Storage key

@@ -52,6 +52,17 @@ Inspirado no icone **Guia do Mochileiro das Galaxias**, o Treino Pro traz uma ab
 - **Compilacao automatica**: Flags `-Wall -Wextra -Werror`
 - **Testes automatizados**: Validacao de casos de borda e valores limites
 
+### Editor e Terminal estilo VSCode (nova melhoria)
+- Editor com aba estilo VSCode, cores de controle (vermelho/amarelo/verde), nome de arquivo e métricas de linhas
+- Números de linha com sincronização de scroll e contador de coluna/linha em tempo real
+- Tema selecionável via menu e status de `Header 42` para C
+- Terminal integrado com estilo dark + comando de limpeza e logs “info/command/success/warning/error”
+- Split ajustável (horizontal/vertical) via botão no painel de ações
+- Busca de exercício por nome/descrição e filtro por tag na lista de exercícios;
+- Sidebar adaptativa com linguagem ativa e contagens atualizadas em tempo real
+- Atalho exclusivo: `Ctrl + Alt + H` para injetar `Header 42` em C
+- Script de build atualizado para contornar edge case Windows com acento no caminho: `next build --webpack`
+
 ### Norminette
 - Validacao de estilo de codigo em tempo real
 - Destaque de erros diretamente no editor

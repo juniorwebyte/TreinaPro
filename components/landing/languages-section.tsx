@@ -2,6 +2,7 @@
 
 import { Braces, Terminal, Code2, CheckCircle2, FileCode, Hash, Variable, Globe, Palette, FileJson, Server } from "lucide-react"
 import { AnimatedSection } from "./animated-section"
+import { getExercisesByLanguage } from "@/lib/exercises"
 
 const LANGUAGES = [
   {
@@ -12,7 +13,7 @@ const LANGUAGES = [
     borderColor: "border-primary/20",
     hoverBorder: "hover:border-primary/50",
     glowColor: "hover:shadow-primary/10",
-    exercises: 10,
+    exercises: getExercisesByLanguage("c").length,
     description:
       "A base de tudo na Piscine. Domine ponteiros, strings, memoria dinamica e funcoes fundamentais usadas nos projetos da 42.",
     topics: [
@@ -32,7 +33,7 @@ const LANGUAGES = [
     borderColor: "border-accent/20",
     hoverBorder: "hover:border-accent/50",
     glowColor: "hover:shadow-accent/10",
-    exercises: 5,
+    exercises: getExercisesByLanguage("shell").length,
     description:
       "Aprenda a navegar, manipular arquivos e automatizar tarefas no terminal. Essencial para sobreviver na Piscine.",
     topics: [
@@ -51,7 +52,7 @@ const LANGUAGES = [
     borderColor: "border-warning/20",
     hoverBorder: "hover:border-warning/50",
     glowColor: "hover:shadow-warning/10",
-    exercises: 6,
+    exercises: getExercisesByLanguage("python").length,
     description:
       "Logica de programacao com Python. FizzBuzz, Fibonacci, ordenacao e manipulacao de strings preparam voce para pensar como programador.",
     topics: [
@@ -71,7 +72,7 @@ const LANGUAGES = [
     borderColor: "border-orange-500/20",
     hoverBorder: "hover:border-orange-500/50",
     glowColor: "hover:shadow-orange-500/10",
-    exercises: 8,
+    exercises: getExercisesByLanguage("html").length,
     description:
       "A linguagem de marcacao da web. Aprenda a estruturar paginas com semantica correta, acessibilidade e boas praticas modernas.",
     topics: [
@@ -91,7 +92,7 @@ const LANGUAGES = [
     borderColor: "border-blue-500/20",
     hoverBorder: "hover:border-blue-500/50",
     glowColor: "hover:shadow-blue-500/10",
-    exercises: 8,
+    exercises: getExercisesByLanguage("css").length,
     description:
       "Estilize suas paginas com CSS moderno. Flexbox, Grid, animacoes e design responsivo para criar interfaces profissionais.",
     topics: [
@@ -111,7 +112,7 @@ const LANGUAGES = [
     borderColor: "border-yellow-500/20",
     hoverBorder: "hover:border-yellow-500/50",
     glowColor: "hover:shadow-yellow-500/10",
-    exercises: 10,
+    exercises: getExercisesByLanguage("javascript").length,
     description:
       "A linguagem da web. Domine manipulacao do DOM, eventos, funcoes assincronas e logica de programacao com JavaScript moderno.",
     topics: [
@@ -131,7 +132,7 @@ const LANGUAGES = [
     borderColor: "border-indigo-400/20",
     hoverBorder: "hover:border-indigo-400/50",
     glowColor: "hover:shadow-indigo-400/10",
-    exercises: 7,
+    exercises: getExercisesByLanguage("php").length,
     description:
       "Desenvolvimento backend com PHP. Aprenda a criar APIs, conectar com bancos de dados e construir aplicacoes web dinamicas.",
     topics: [
