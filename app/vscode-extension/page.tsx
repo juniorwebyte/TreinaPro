@@ -65,7 +65,7 @@ const FEATURES = [
   {
     icon: Terminal,
     title: "Terminal Webytehub 42",
-    description: "Atalho direto na extensao para abrir terminais pré-configurados (alias webytehub -42)."
+    description: "Atalho direto para terminais pré-configurados com suporte a comandos mini-CXX e webytehub -42."
   },
   {
     icon: GitBranch,
@@ -173,7 +173,13 @@ const COMMANDS = [
   {
     command: "treinoPro.openWebytehubTerminal",
     title: "Terminal Webytehub 42",
-    description: "Abre um terminal pré-configurado com atalhos para executar a norminette e mini-moulinette em sequencia.",
+    description: "Abre um terminal pré-configurado com suporte a comandos mini-C00, mini-C01 e atalhos de validacao.",
+    shortcut: null
+  },
+  {
+    command: "treinoPro.uncommentTestingCode",
+    title: "Descomentar Codigo de Teste",
+    description: "Detecta e descomenta automaticamente blocos de #include e int main para facilitar testes manuais.",
     shortcut: null
   }
 ]

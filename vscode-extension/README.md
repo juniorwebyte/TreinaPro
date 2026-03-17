@@ -29,8 +29,20 @@ Extensão oficial do **Treino Pro** para treinar exercícios diretamente no VSCo
 
 ### 🚀 Terminal Webytehub 42 (Novo!)
 A extensão agora injeta rotinas consolidadas no VS Code integrando sua shell!
-- **Workspace Pré-Carregado**: Use `Treino Pro: Abrir Terminal Webytehub 42` (Ctrl+Shift+P).
-- **Único Comando**: Basta rodar `webytehub -42` e nós executaremos uma auditoria de estilo (Norminette) conectada ponta a ponta com a aprovação em massa da sua Bateria de Testes (`mini-moulinette`).
+
+### 1. Abrir o Terminal Webytehub 42
+Abra a paleta de comandos (`Ctrl+Shift+P`) e selecione **Treino Pro: Abrir Terminal Webytehub 42** ou clique no ícone de terminal na barra lateral.
+> **Patch Automático:** A extensão sincroniza e repara automaticamente os scripts da `mini-moulinette` sempre que o terminal é aberto, garantindo que tudo funcione sem erros de caminho ou comandos.
+
+### 2. Navegar até o Exercício
+Use o comando `cd` para entrar na pasta do exercício que deseja testar (ex: `C00`). 
+> **Nota:** A extensão agora reconhece automaticamente o diretório atual!
+
+### 3. Rodar os Testes
+No terminal, você tem agora dois comandos principais:
+- `mini`: Roda os testes automáticos da Mini-Moulinette para o módulo atual (detectado automaticamente e pré-configurado).
+- `mini CXX`: Roda os testes para um módulo específico (ex: `mini C02`).
+- `webytehub -42`: Roda a validação completa (Norminette + Mini-Moulinette).
 
 ### 🤖 Integração GitHub Copilot
 - **Chat Participant `@norm`**: Comando dedicado para perguntas sobre Norminette

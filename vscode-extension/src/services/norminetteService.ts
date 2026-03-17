@@ -183,8 +183,9 @@ export class NorminetteService {
             const platformService = getPlatformService();
             const cmd = platformService.getNorminetteCommand(filePath);
             
-            const { stdout, stderr } = await execAsync(cmd, {
-                timeout: 30000
+            const { stdout, stderr } = await platformService.executeCommand(cmd, {
+                timeout: 30000,
+                useWSL: platformService.isWindows() && !platformService.isToolAvailable('norminette')
             });
             
             const output = stdout || stderr;
@@ -800,7 +801,7 @@ export class NorminetteService {
     }
 
     // Obter erros para um arquivo especifico
-    getErrors(uri: vscode.Uri): vscode.Diagnostic[] {
+    getErrors(uri: vscode.Uri): readonly vscode.Diagnostic[] {
         return this.diagnosticCollection.get(uri) || [];
     }
 

@@ -13,6 +13,7 @@ export interface PlatformInfo {
     homeDir: string;
     shell: string;
     pathSeparator: string;
+    wslDistro?: string;
 }
 export interface ToolPaths {
     norminette?: string;
@@ -67,6 +68,8 @@ export declare class PlatformService {
     normalizePath(filePath: string): string;
     toWSLPath(windowsPath: string): string;
     toWindowsPath(wslPath: string): string;
+    getWSLDistributions(): Promise<string[]>;
+    selectBestDistro(): Promise<string | undefined>;
     checkMinimumRequirements(): Promise<{
         ok: boolean;
         missing: string[];

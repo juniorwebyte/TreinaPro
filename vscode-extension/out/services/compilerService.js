@@ -60,8 +60,13 @@ class CompilerService {
         }
         // Compilar
         try {
+            const platformService = require('./platformService').getPlatformService();
             const compileCmd = `gcc -Wall -Wextra -Werror -o "${dir}/${outputName}" "${filePath}" "${testFilePath}" 2>&1`;
-            await execAsync(compileCmd);
+            await platformService.executeCommand(compileCmd, {
+                timeout: 30000,
+                cwd: dir,
+                useWSL: platformService.isWindows() && !platformService.isToolAvailable('gcc')
+            });
         }
         catch (error) {
             const stderr = error instanceof Error && 'stderr' in error ? error.stderr : String(error);
@@ -76,10 +81,15 @@ class CompilerService {
         }
         // Executar testes
         try {
-            const { stdout } = await execAsync(`"${dir}/${outputName}"`);
-            const lines = stdout.split('\n').filter(l => l.trim());
-            const passed = lines.filter(l => l.includes('[OK]')).length;
-            const total = lines.filter(l => l.includes('[OK]') || l.includes('[KO]')).length;
+            const platformService = require('./platformService').getPlatformService();
+            const execCmd = platformService.isWindows() ? `"${dir}/${outputName}"` : `./${outputName}`;
+            const { stdout } = await platformService.executeCommand(execCmd, {
+                cwd: dir,
+                useWSL: platformService.isWindows() && !platformService.isToolAvailable('gcc')
+            });
+            const lines = stdout.split('\n').filter((l) => l.trim());
+            const passed = lines.filter((l) => l.includes('[OK]')).length;
+            const total = lines.filter((l) => l.includes('[OK]') || l.includes('[KO]')).length;
             return {
                 compileSuccess: true,
                 compileErrors: '',

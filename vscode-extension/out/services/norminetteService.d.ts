@@ -47,7 +47,7 @@ export declare class NorminetteService {
     parseToDiagnostics(result: NorminetteResult, uri: vscode.Uri): vscode.Diagnostic[];
     updateDiagnostics(diagnostics: vscode.Diagnostic[], uri: vscode.Uri): void;
     clearDiagnostics(uri?: vscode.Uri): void;
-    getErrors(uri: vscode.Uri): vscode.Diagnostic[];
+    getErrors(uri: vscode.Uri): readonly vscode.Diagnostic[];
     generateHeader42(fileName: string, author?: string): string;
     generateIncludeGuard(fileName: string): {
         top: string;

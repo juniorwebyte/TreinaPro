@@ -50,6 +50,20 @@ const TOOLS: ToolDefinition[] = [
         description: 'Abrir terminal com atalhos mini-moulinette',
         icon: 'terminal',
         command: 'treinoPro.openWebytehubTerminal'
+    },
+    {
+        id: 'uncomment_test',
+        label: 'Descomentar Codigo de Teste',
+        description: 'Descomentar #include e main para testes',
+        icon: 'comment-discussion',
+        command: 'treinoPro.uncommentTestingCode'
+    },
+    {
+        id: 'fix_mini_moul',
+        label: 'Reparar Mini-Moulinette',
+        description: 'Corrigir caminhos e erros do script',
+        icon: 'tools',
+        command: 'treinoPro.fixMiniMoul'
     }
 ];
 

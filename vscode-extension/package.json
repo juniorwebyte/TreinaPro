@@ -87,6 +87,16 @@
         "command": "treinoPro.openWebytehubTerminal",
         "title": "Treino Pro: Abrir Terminal Webytehub 42",
         "icon": "$(terminal)"
+      },
+      {
+        "command": "treinoPro.uncommentTestingCode",
+        "title": "Treino Pro: Descomentar Codigo de Teste",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "treinoPro.fixMiniMoul",
+        "title": "Treino Pro: Reparar Mini-Moulinette",
+        "icon": "$(tools)"
       }
     ],
     "viewsContainers": {

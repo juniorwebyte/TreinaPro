@@ -368,22 +368,123 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     // Comando: Abrir Terminal Webytehub 42
-    const openWebytehubTerminalCommand = vscode.commands.registerCommand('treinoPro.openWebytehubTerminal', () => {
+    const openWebytehubTerminalCommand = vscode.commands.registerCommand('treinoPro.openWebytehubTerminal', async () => {
+        // Garantir que a mini-moulinette esta sincronizada e corrigida automaticamente
+        await ensureMiniMoulIsPatched();
+
         const config = vscode.workspace.getConfiguration('treinoPro');
-        const miniMoulPath = config.get<string>('miniMoulinettePath', '~/mini-moulinette');
+        
+        // Tentar encontrar mini-moulinette no workspace primeiro
+        let miniMoulPath = config.get<string>('miniMoulinettePath');
+        if (!miniMoulPath || miniMoulPath === '~/mini-moulinette') {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            if (workspaceFolders) {
+                const workspaceRoot = workspaceFolders[0].uri.fsPath;
+                const localMiniMoul = vscode.Uri.file(require('path').join(workspaceRoot, 'mini-moulinette'));
+                try {
+                    await vscode.workspace.fs.stat(localMiniMoul);
+                    miniMoulPath = localMiniMoul.fsPath;
+                } catch {
+                    // Nao encontrado no root, manter o padrao do sistema
+                    miniMoulPath = miniMoulPath || '~/mini-moulinette';
+                }
+            }
+        }
+
+        // Normalizar caminhos para diferentes shells
+        const winPath = miniMoulPath!.replace(/\//g, '\\');
+        const wslPath = miniMoulPath!.replace(/\\/g, '/').replace(/^([A-Za-z]):/, (match, drive) => `/mnt/${drive.toLowerCase()}`);
+        const gitBashPath = miniMoulPath!.replace(/\\/g, '/').replace(/^([A-Za-z]):/, (match, drive) => `/${drive.toLowerCase()}`);
         
         const terminal = vscode.window.createTerminal('Webytehub 42');
         terminal.show();
         
         const isWindows = process.platform === 'win32';
         if (isWindows) {
-            terminal.sendText(`function webytehub-42 { Write-Host "Executando Norminette..." -ForegroundColor Cyan; norminette; Write-Host "Executando Mini-Moulinette..." -ForegroundColor Cyan; bash ${miniMoulPath}/mini-moul.sh }; function webytehub { if ($args[0] -eq "-42") { webytehub-42 } else { Write-Host "Comando invalido. Use: webytehub -42 ou webytehub-42" -ForegroundColor Red } }`);
+            // No Windows, tentamos ser inteligentes sobre o shell
+            const bestDistro = await platformService.selectBestDistro();
+            const bashCmd = bestDistro ? `wsl -d ${bestDistro} bash` : 'bash';
+            
+            if (bestDistro) {
+                terminal.sendText(`Write-Host "Ambiente Linux detectado: ${bestDistro}" -ForegroundColor Green`);
+            }
+
+            // Se for PowerShell
+            terminal.sendText(`function webytehub-42 { Write-Host "Executando Norminette..." -ForegroundColor Cyan; norminette; Write-Host "Executando Mini-Moulinette..." -ForegroundColor Cyan; ${bashCmd} "${wslPath}/mini-moul.sh" }; function webytehub { if ($args[0] -eq "-42") { webytehub-42 } else { Write-Host "Comando invalido. Use: webytehub -42 ou webytehub-42" -ForegroundColor Red } }; function mini { ${bashCmd} "${wslPath}/mini-moul.sh" $args }`);
+            
+            // Adicionar aliases mini-C00 ate mini-C13
+            for (let i = 0; i <= 13; i++) {
+                const module = `C${i.toString().padStart(2, '0')}`;
+                terminal.sendText(`function mini-${module} { mini ${module} }`);
+            }
+            
             terminal.sendText('Clear-Host');
-            terminal.sendText('Write-Host "Terminal Webytehub pronto! Digite: webytehub -42 ou webytehub-42" -ForegroundColor Green');
+            terminal.sendText('Write-Host "Terminal Webytehub pronto! (Sincronizacao Automatica Ok)" -ForegroundColor Green');
+            terminal.sendText('Write-Host "Comandos disponiveis:" -ForegroundColor White');
+            terminal.sendText('Write-Host "  webytehub -42 (Norminette + Testes)" -ForegroundColor Cyan');
+            terminal.sendText('Write-Host "  mini [modulo] (ou mini-CXX)" -ForegroundColor Cyan');
         } else {
-            terminal.sendText(`webytehub-42() { echo -e "\\033[36mExecutando Norminette...\\033[0m"; norminette; echo -e "\\033[36mExecutando Mini-Moulinette...\\033[0m"; bash ${miniMoulPath}/mini-moul.sh; }; webytehub() { if [ "$1" = "-42" ]; then webytehub-42; else echo -e "\\033[31mComando invalido. Use: webytehub -42 ou webytehub-42\\033[0m"; fi; }`);
+            terminal.sendText(`webytehub-42() { echo -e "\\033[36mExecutando Norminette...\\033[0m"; norminette; echo -e "\\033[36mExecutando Mini-Moulinette...\\033[0m"; bash "${wslPath}/mini-moul.sh"; }; webytehub() { if [ "$1" = "-42" ]; then webytehub-42; else echo -e "\\033[31mComando invalido. Use: webytehub -42 ou webytehub-42\\033[0m"; fi; }; mini() { bash "${wslPath}/mini-moul.sh" "$@"; }`);
+            
+            // Adicionar aliases mini-C00 ate mini-C13
+            for (let i = 0; i <= 13; i++) {
+                const module = `C${i.toString().padStart(2, '0')}`;
+                terminal.sendText(`alias mini-${module}='mini ${module}'`);
+            }
+
             terminal.sendText('clear');
-            terminal.sendText('echo -e "\\033[32mTerminal Webytehub pronto! Digite: webytehub -42 ou webytehub-42\\033[0m"');
+            terminal.sendText('echo -e "\\033[32mTerminal Webytehub pronto! (Sincronizacao Automatica Ok)\\033[0m"');
+            terminal.sendText('echo -e "\\033[37mComandos disponiveis:\\033[0m"');
+            terminal.sendText('echo -e "  \\033[36mwebytehub -42\\033[0m (Norminette + Testes)"');
+            terminal.sendText('echo -e "  \\033[36mmini [modulo]\\033[0m (ou mini-CXX)"');
+        }
+    });
+    
+    // Comando: Descomentar Codigo de Teste
+    const uncommentTestingCodeCommand = vscode.commands.registerCommand('treinoPro.uncommentTestingCode', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showWarningMessage('Nenhum arquivo aberto');
+            return;
+        }
+
+        const text = editor.document.getText();
+        
+        // Regex para encontrar blocos comentados com #include ou main
+        // 1. Descomentar // #include ou // int main
+        let newText = text.replace(/^\s*\/\/\s*(#include\s+<[^>]+>)/gm, '$1');
+        newText = newText.replace(/^\s*\/\/\s*(int\s+main[\s\S]*?^})/gm, '$1');
+        
+        // 2. Descomentar /* #include ... */ ou /* int main ... */
+        newText = newText.replace(/\/\*\s*(#include\s+<[^>]+>)\s*\*\//g, '$1');
+        
+        // 3. Descomentar blocos multiline /* ... int main ... */
+        // Tentamos encontrar o bloco de comentario que contem 'int main'
+        newText = newText.replace(/\/\*([\s\S]*?int\s+main[\s\S]*?)\*\//g, '$1');
+
+        if (text === newText) {
+            vscode.window.showInformationMessage('Nenhum bloco de teste comentado encontrado.');
+            return;
+        }
+
+        const edit = new vscode.WorkspaceEdit();
+        const fullRange = new vscode.Range(
+            editor.document.positionAt(0),
+            editor.document.positionAt(text.length)
+        );
+        edit.replace(editor.document.uri, fullRange, newText);
+        
+        const success = await vscode.workspace.applyEdit(edit);
+        if (success) {
+            vscode.window.showInformationMessage('Codigo de teste descomentado!');
+        }
+    });
+
+    // Comando: Reparar Mini-Moulinette
+    const fixMiniMoulCommand = vscode.commands.registerCommand('treinoPro.fixMiniMoul', async () => {
+        const success = await ensureMiniMoulIsPatched(true);
+        if (success) {
+            vscode.window.showInformationMessage('Mini-Moulinette reparada com sucesso!');
         }
     });
 
@@ -402,8 +503,11 @@ export async function activate(context: vscode.ExtensionContext) {
         showDiagnosticsSummaryCommand,
         addHeader42Command,
         addIncludeGuardCommand,
-        openWebytehubTerminalCommand
+        openWebytehubTerminalCommand,
+        uncommentTestingCodeCommand,
+        fixMiniMoulCommand
     );
+
 
     // Auto-verificar Norminette ao salvar
     const config = vscode.workspace.getConfiguration('treinoPro');
@@ -489,4 +593,113 @@ export function deactivate() {
     platformService?.dispose();
     diagnosticsService?.dispose();
     copilotService?.dispose();
+}
+
+/**
+ * Garante que o arquivo mini-moul.sh no workspace está atualizado e funcional.
+ * @param showErrors Se true, mostra mensagens de erro ao usuário.
+ */
+async function ensureMiniMoulIsPatched(showErrors: boolean = false): Promise<boolean> {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        return false;
+    }
+
+    const workspaceRoot = workspaceFolders[0].uri.fsPath;
+    const miniMoulPath = require('path').join(workspaceRoot, 'mini-moulinette', 'mini-moul.sh');
+    
+    // Verificar se existe a pasta mini-moulinette
+    try {
+        const fs = require('fs');
+        if (!fs.existsSync(require('path').join(workspaceRoot, 'mini-moulinette'))) {
+            return false;
+        }
+
+        const fixedContent = `#!/bin/bash
+
+# ============================================================================
+# MINI-MOULINETTE - Script de Inicializacao Robusto (Sincronizacao Automatica)
+# ============================================================================
+
+if [ -n "$BASH_SOURCE" ]; then
+    SCRIPT_PATH="\${BASH_SOURCE[0]}"
+else
+    SCRIPT_PATH="$0"
+fi
+MINI_MOUL_ROOT=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
+
+if [ ! -f "$MINI_MOUL_ROOT/mini-moul/config.sh" ]; then
+    echo -e "\\033[31mErro: Arquivo de configuracao nao encontrado em: $MINI_MOUL_ROOT/mini-moul/config.sh\\033[0m"
+    exit 1
+fi
+
+source "$MINI_MOUL_ROOT/mini-moul/config.sh"
+assignment=NULL
+ARG_PASSED=false
+
+function handle_sigint {
+  echo -e "\\n\${RED}Script interrompido pelo usuário. Limpando...\${DEFAULT}"
+  rm -rf ./mini-moul_tmp
+  exit 1
+}
+
+detect_assignment() {
+  if [[ "$1" =~ ^C(0[0-9]|1[0-3])$ ]]; then
+    assignment="$1"
+    return 0
+  fi
+  local current_dir=$(basename "$(pwd)")
+  if [[ "$current_dir" =~ ^C(0[0-9]|1[0-3])$ ]]; then
+    assignment="$current_dir"
+    return 0
+  fi
+  return 1
+}
+
+run_norminette() {
+  if command -v norminette &> /dev/null; then
+    echo -e "\${BLUE}Executando Norminette...\${DEFAULT}"
+    norminette
+  else
+    echo -e "\${RED}Aviso: norminette nao encontrada. Pulando verificacao de estilo.\${DEFAULT}"
+  fi
+}
+
+if [[ "$1" =~ ^C(0[0-9]|1[0-3])$ ]] && [ -d "$1" ]; then
+    echo -e "\${BLUE}Entrando no diretorio $1...\${DEFAULT}"
+    cd "$1"
+    ARG_PASSED=true
+fi
+
+if detect_assignment "$1"; then
+  echo -e "\${GREEN}Modulo detectado: \${assignment}\${DEFAULT}"
+  run_norminette
+  rm -rf ./mini-moul_tmp
+  cp -rf "$MINI_MOUL_ROOT/mini-moul" ./mini-moul_tmp
+  trap handle_sigint SIGINT
+  cd mini-moul_tmp
+  if [ -f "./test.sh" ]; then
+      bash "./test.sh" "$assignment"
+  else
+      echo -e "\${RED}Erro: test.sh nao encontrado no core da moulinette.\${DEFAULT}"
+  fi
+  cd ..
+  rm -rf ./mini-moul_tmp
+else
+  echo -e "\${RED}Erro: Diretorio atual (\$(basename "\$(pwd)")) ou argumento (\$1) nao e um modulo valido (C00 a C13).\${DEFAULT}"
+  echo -e "\${RED}Uso: 'mini [C00-C13]' ou execute 'mini' dentro da pasta do modulo.\${DEFAULT}"
+fi
+
+if [ "$ARG_PASSED" = true ]; then
+    cd ..
+fi
+`;
+        fs.writeFileSync(miniMoulPath, fixedContent);
+        return true;
+    } catch (error) {
+        if (showErrors) {
+            vscode.window.showErrorMessage(`Erro ao sincronizar Mini-Moulinette: ${error}`);
+        }
+        return false;
+    }
 }

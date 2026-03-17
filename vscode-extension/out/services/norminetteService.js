@@ -167,8 +167,9 @@ class NorminetteService {
         try {
             const platformService = (0, platformService_1.getPlatformService)();
             const cmd = platformService.getNorminetteCommand(filePath);
-            const { stdout, stderr } = await execAsync(cmd, {
-                timeout: 30000
+            const { stdout, stderr } = await platformService.executeCommand(cmd, {
+                timeout: 30000,
+                useWSL: platformService.isWindows() && !platformService.isToolAvailable('norminette')
             });
             const output = stdout || stderr;
             const errors = this.parseNorminetteOutput(output);

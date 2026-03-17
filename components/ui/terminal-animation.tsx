@@ -7,15 +7,15 @@ export const TerminalAnimation = () => {
   
   useEffect(() => {
     const sequence = [
-      { text: "$ webytehub -42", delay: 800 },
-      { text: "Executando Norminette...", delay: 1800, color: "text-cyan-400" },
-      { text: "Norme: OK!", delay: 2200, color: "text-green-500" },
-      { text: "Executando Mini-Moulinette...", delay: 3500, color: "text-cyan-400" },
-      { text: "[OK] ft_putchar.c compila com sucesso", delay: 4200, color: "text-green-500" },
-      { text: "✓ Teste 1: Passou", delay: 4600, color: "text-green-500" },
-      { text: "✓ Teste 2: Passou", delay: 4900, color: "text-green-500" },
-      { text: "Todos os testes passaram!", delay: 5200, color: "text-green-500 font-bold" },
-      { text: "$ ", delay: 7000 }
+      { text: "$ cd C00", delay: 800 },
+      { text: "$ mini", delay: 1800 },
+      { text: "Detectando modulo: C00", delay: 2400, color: "text-green-500" },
+      { text: "Executando Norminette...", delay: 3500, color: "text-cyan-400" },
+      { text: "Norme: OK!", delay: 4200, color: "text-green-500" },
+      { text: "Gerando testes para C00...", delay: 5500, color: "text-cyan-400" },
+      { text: "✓ PASS ex00 (ft_putchar)", delay: 6500, color: "text-green-500" },
+      { text: "Final score: 100/100", delay: 8500, color: "text-green-500 font-bold" },
+      { text: "$ ", delay: 10000 }
     ]
     
     const timeoutIds: ReturnType<typeof setTimeout>[] = []

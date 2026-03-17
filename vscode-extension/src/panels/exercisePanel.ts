@@ -396,16 +396,31 @@ export class ExercisePanelManager {
         </div>
     </div>
     
-    <div class="section-title">Como Validar seus Exercícios</div>
+    <div class="section-title">Guia de Uso Rápido</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="stat-card" style="text-align: left; padding: 12px;">
+            <div style="color: var(--accent); font-weight: bold; margin-bottom: 4px;">1. Abrir Terminal</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">Sincronizacao automatica ativada! Abra pelo icone ou <b>Ctrl+Shift+P</b>.</div>
+        </div>
+        <div class="stat-card" style="text-align: left; padding: 12px;">
+            <div style="color: var(--accent); font-weight: bold; margin-bottom: 4px;">2. Ir ao Exercício</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">Navegue ate a pasta (ex: <b>cd C00</b>). O script se adapta sozinho!</div>
+        </div>
+        <div class="stat-card" style="text-align: left; padding: 12px;">
+            <div style="color: var(--accent); font-weight: bold; margin-bottom: 4px;">3. Rodar Comandos</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">Digite <b>mini</b> para testes ou <b>webytehub -42</b> para validacao.</div>
+        </div>
+    </div>
+
+    <div class="section-title">Terminal Integrado (Demonstração)</div>
     <div class="terminal-demo">
         <div class="terminal-header">
             <div class="dot dot-red"></div>
             <div class="dot dot-yellow"></div>
             <div class="dot dot-green"></div>
-            <span style="margin-left:auto; color: #888; font-size:10px;">Webytehub Terminal (Ctrl+Shift+P)</span>
+            <span style="margin-left:auto; color: #888; font-size:10px;">Webytehub Terminal v1.3.2</span>
         </div>
         <div id="term-body" class="terminal-body">
-            <!-- lines will be appended here -->
             <span id="cursor" style="display:inline-block; width:8px; height:15px; background:#aaa;" class="blink"></span>
         </div>
     </div>
@@ -501,15 +516,16 @@ export class ExercisePanelManager {
         // Terminal Animation Script
         function runTerminalAnimation() {
             const sequence = [
-              { text: '<span class="dollar">$</span> webytehub -42', delay: 800 },
-              { text: '<span class="info">Executando Norminette...</span>', delay: 1800 },
-              { text: '<span class="success">Norme: OK!</span>', delay: 2200 },
-              { text: '<span class="info">Executando Mini-Moulinette...</span>', delay: 3500 },
-              { text: '<span class="success">[OK] ft_putchar.c compila com sucesso</span>', delay: 4200 },
-              { text: '<span class="success">✓ Teste 1: Passou</span>', delay: 4600 },
-              { text: '<span class="success">✓ Teste 2: Passou</span>', delay: 4900 },
-              { text: '<span class="success">Todos os testes passaram!</span>', delay: 5200 },
-              { text: '<span class="dollar">$</span> ', delay: 7000 }
+              { text: '<span class="dollar">$</span> cd C00', delay: 800 },
+              { text: '<span class="dollar">$</span> mini', delay: 1800 },
+              { text: '<span class="success">Detectando assignment: C00</span>', delay: 2400 },
+              { text: '<span class="info">Executando Norminette...</span>', delay: 3500 },
+              { text: '<span class="success">Norme: OK!</span>', delay: 4200 },
+              { text: '<span class="info">Gerando testes para C00...</span>', delay: 5500 },
+              { text: '<span class="success">✓ PASS ex00 (ft_putchar)</span>', delay: 6500 },
+              { text: '<span class="success">✓ PASS ex01 (ft_print_alphabet)</span>', delay: 7200 },
+              { text: '<span class="success">Final score: 100/100</span>', delay: 8500 },
+              { text: '<span class="dollar">$</span> ', delay: 10000 }
             ];
             
             const termBody = document.getElementById('term-body');

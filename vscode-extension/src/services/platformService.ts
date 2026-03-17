@@ -28,6 +28,7 @@ export interface PlatformInfo {
     homeDir: string;
     shell: string;
     pathSeparator: string;
+    wslDistro?: string;
 }
 
 export interface ToolPaths {
@@ -346,7 +347,12 @@ export class PlatformService {
 
         // No Windows, se WSL esta disponivel e foi solicitado, usar WSL
         if (this.isWindows() && options.useWSL) {
-            finalCommand = `wsl ${command}`;
+            const bestDistro = await this.selectBestDistro();
+            if (bestDistro) {
+                finalCommand = `wsl -d ${bestDistro} ${command}`;
+            } else {
+                finalCommand = `wsl ${command}`;
+            }
         }
 
         // No Windows puro, ajustar comandos
@@ -533,6 +539,38 @@ export class PlatformService {
         }
 
         return wslPath;
+    }
+
+    // Obter lista de distribuicoes WSL instaladas
+    async getWSLDistributions(): Promise<string[]> {
+        if (!this.isWindows()) {
+            return [];
+        }
+
+        try {
+            const { stdout } = await execAsync('wsl -l -q', { timeout: 5000 });
+            // wsl -l -q retorna nomes das distros separados por newline (pode ter null characters no meio dependendo do encoding)
+            const distros = stdout.replace(/\0/g, '').split(/\r?\n/).map(d => d.trim()).filter(d => d.length > 0);
+            return distros;
+        } catch {
+            return [];
+        }
+    }
+
+    // Selecionar a melhor distribuicao Linux para rodar comandos
+    async selectBestDistro(): Promise<string | undefined> {
+        const distros = await this.getWSLDistributions();
+        if (distros.length === 0) {
+            return undefined;
+        }
+
+        // Filtrar distros conhecidas por serem "incompletas" para terminal
+        const realDistros = distros.filter(d => 
+            !d.toLowerCase().includes('docker') && 
+            !d.toLowerCase().includes('rancher')
+        );
+
+        return realDistros.length > 0 ? realDistros[0] : distros[0];
     }
 
     // Verificar requisitos minimos para a extensao
