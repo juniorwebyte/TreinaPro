@@ -27,6 +27,7 @@ import { ActionButtons } from "./action-buttons"
 import { ProgressTracker } from "./progress-tracker"
 import { Timer } from "./timer"
 import { Footer } from "./footer"
+import { LogicBoard } from "./logic-board"
 import { GamificationStats } from "@/components/gamification/gamification-stats"
 import { XPPopup } from "@/components/gamification/xp-popup"
 import { Button } from "@/components/ui/button"
@@ -78,6 +79,9 @@ export function TrainingWorkspace() {
   const [showCodeModal, setShowCodeModal] = useState(false)
   const [splitDirection, setSplitDirection] = useState<'horizontal' | 'vertical'>('horizontal')
   const [showExerciseMenu, setShowExerciseMenu] = useState(true)
+  const [showLeftSidebar, setShowLeftSidebar] = useState(true)
+  const [showRightSidebar, setShowRightSidebar] = useState(true)
+  const [showHelpModal, setShowHelpModal] = useState(false)
   
   // Gamification state
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -93,6 +97,7 @@ export function TrainingWorkspace() {
   useEffect(() => {
     setUserProfile(loadUserProfile())
   }, [])
+
 
   const addMessage = useCallback((msg: OutputMessage) => {
     setMessages((prev) => [...prev, msg])
@@ -443,6 +448,18 @@ export function TrainingWorkspace() {
   // Right sidebar: Exercises list
   const exercisesContent = (
     <div className="flex min-h-0 flex-1 flex-col py-4">
+      <div className="flex items-center justify-between px-3 pb-1">
+        <span className="text-xs font-semibold text-muted-foreground">
+          Exercicios
+        </span>
+        <button
+          type="button"
+          className="text-[10px] text-muted-foreground hover:text-foreground"
+          onClick={() => setShowRightSidebar(false)}
+        >
+          Esconder
+        </button>
+      </div>
       <ExerciseList
         selectedId={selectedExercise?.id ?? null}
         completedIds={completedIds}
@@ -500,7 +517,15 @@ export function TrainingWorkspace() {
                 </div>
               )}
               <Timer />
-              
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="hidden h-8 px-3 text-[11px] md:inline-flex"
+                onClick={() => setShowHelpModal(true)}
+              >
+                Ajuda / Atalhos
+              </Button>
               {/* Mobile menu - Right side */}
               <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetTrigger asChild>
@@ -562,12 +587,35 @@ export function TrainingWorkspace() {
         {/* Main content */}
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Left sidebar - Stats (gamification + progress) */}
-          <aside className="hidden md:flex w-[260px] shrink-0 overflow-hidden border-r border-border bg-card md:flex-col">
-            {statsContent}
-          </aside>
+          {showLeftSidebar && (
+            <aside className="hidden md:flex w-[260px] shrink-0 overflow-hidden border-r border-border bg-card md:flex-col">
+              <div className="flex items-center justify-between px-3 pt-3 pb-1">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Progresso
+                </span>
+                <button
+                  type="button"
+                  className="text-[10px] text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowLeftSidebar(false)}
+                >
+                  Esconder
+                </button>
+              </div>
+              {statsContent}
+            </aside>
+          )}
+          {!showLeftSidebar && (
+            <button
+              type="button"
+              className="hidden md:flex w-3 shrink-0 items-center justify-center border-r border-border bg-card/80 text-[10px] text-muted-foreground hover:bg-card"
+              onClick={() => setShowLeftSidebar(true)}
+            >
+              &gt;
+            </button>
+          )}
 
           {/* Editor area */}
-          <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <main className="flex min-h-0 flex-1 flex-col overflow-auto">
             {selectedExercise ? (
               <ExerciseWorkArea
                 exercise={selectedExercise}
@@ -599,9 +647,20 @@ export function TrainingWorkspace() {
           </main>
 
           {/* Right sidebar - Exercises list */}
-          <aside className="hidden md:flex w-[260px] h-full shrink-0 overflow-y-auto border-l border-border bg-card md:flex-col">
-            {exercisesContent}
-          </aside>
+          {showRightSidebar && (
+            <aside className="hidden md:flex w-[260px] h-full shrink-0 overflow-y-auto border-l border-border bg-card md:flex-col">
+              {exercisesContent}
+            </aside>
+          )}
+          {!showRightSidebar && (
+            <button
+              type="button"
+              className="hidden md:flex w-3 shrink-0 items-center justify-center border-l border-border bg-card/80 text-[10px] text-muted-foreground hover:bg-card"
+              onClick={() => setShowRightSidebar(true)}
+            >
+              &lt;
+            </button>
+          )}
         </div>
 
         {/* Footer - reduzido em mobile quando ha exercicio ativo para priorizar area de estudo */}
@@ -668,6 +727,59 @@ export function TrainingWorkspace() {
             streak={userProfile.streak}
           />
         )}
+
+        {/* Help / Shortcuts Modal */}
+        <Dialog open={showHelpModal} onOpenChange={setShowHelpModal}>
+          <DialogContent className="max-w-md border-border bg-card">
+            <DialogHeader>
+              <DialogTitle className="text-sm font-semibold">
+                Ajuda rapida & atalhos
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Dicas para aproveitar melhor o ambiente de treino.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 text-xs text-foreground/90">
+              <div>
+                <p className="font-semibold">Editor</p>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  <li>
+                    <span className="font-mono">Tab</span>: insere indentacao
+                    (4 espacos em Python, tab nas demais linguagens).
+                  </li>
+                  <li>
+                    <span className="font-mono">Ctrl + Alt + H</span> (C):
+                    insere automaticamente o Header 42 no topo do arquivo.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold">Fluxo de estudo</p>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  <li>
+                    Use os botoes <span className="font-semibold">Anterior</span> /
+                    <span className="font-semibold"> Proximo</span> para seguir a trilha
+                    da linguagem atual.
+                  </li>
+                  <li>
+                    A lousa de logica abaixo do terminal guarda seus desenhos por
+                    exercicio automaticamente.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold">Sidebars</p>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  <li>
+                    Clique em <span className="font-semibold">Esconder</span> nas
+                    laterais para focar no codigo, e use as abas finas na borda para
+                    reabrir.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   )
@@ -721,7 +833,7 @@ function ExerciseWorkArea({
   isCompleted,
 }: ExerciseWorkAreaProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 p-2 md:gap-3 md:p-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2 md:gap-3 md:p-4">
       {/* Info + navegacao + acoes */}
       <div className="shrink-0 space-y-2">
         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -774,14 +886,15 @@ function ExerciseWorkArea({
           value={code}
           onChange={onCodeChange}
           language={exercise.language}
-          className="min-h-[180px] lg:min-h-0"
+          className="min-h-[180px] lg:min-h-[220px]"
         />
         <TerminalOutput
           messages={messages}
           onClear={onClearTerminal}
-          className="min-h-[140px] lg:min-h-0"
+          className="min-h-[160px] lg:min-h-[200px]"
         />
       </div>
+      <LogicBoard exerciseId={exercise.id} />
     </div>
   )
 }

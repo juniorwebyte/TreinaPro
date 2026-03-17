@@ -50,8 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.window.registerTreeDataProvider('treinoPro.progress', progressProvider);
     vscode.window.registerTreeDataProvider('treinoPro.tools', toolsProvider);
 
-    // Inicializar painel de exercicios
-    exercisePanelManager = new ExercisePanelManager(context, apiService);
+    // Inicializar painel de exercicios (adiado para o openPanelCommand)
 
     // Registrar Code Actions Provider para correcoes automaticas
     context.subscriptions.push(
@@ -73,7 +72,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Comando: Abrir Painel de Exercicios
     const openPanelCommand = vscode.commands.registerCommand('treinoPro.openPanel', () => {
-        exercisePanelManager.createOrShow();
+        exercisePanelManager = ExercisePanelManager.createOrShowPanel(context, apiService);
     });
 
     // Comando: Carregar Exercicio
@@ -368,6 +367,26 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Include guard adicionado!');
     });
 
+    // Comando: Abrir Terminal Webytehub 42
+    const openWebytehubTerminalCommand = vscode.commands.registerCommand('treinoPro.openWebytehubTerminal', () => {
+        const config = vscode.workspace.getConfiguration('treinoPro');
+        const miniMoulPath = config.get<string>('miniMoulinettePath', '~/mini-moulinette');
+        
+        const terminal = vscode.window.createTerminal('Webytehub 42');
+        terminal.show();
+        
+        const isWindows = process.platform === 'win32';
+        if (isWindows) {
+            terminal.sendText(`function webytehub-42 { Write-Host "Executando Norminette..." -ForegroundColor Cyan; norminette; Write-Host "Executando Mini-Moulinette..." -ForegroundColor Cyan; bash ${miniMoulPath}/mini-moul.sh }; function webytehub { if ($args[0] -eq "-42") { webytehub-42 } else { Write-Host "Comando invalido. Use: webytehub -42 ou webytehub-42" -ForegroundColor Red } }`);
+            terminal.sendText('Clear-Host');
+            terminal.sendText('Write-Host "Terminal Webytehub pronto! Digite: webytehub -42 ou webytehub-42" -ForegroundColor Green');
+        } else {
+            terminal.sendText(`webytehub-42() { echo -e "\\033[36mExecutando Norminette...\\033[0m"; norminette; echo -e "\\033[36mExecutando Mini-Moulinette...\\033[0m"; bash ${miniMoulPath}/mini-moul.sh; }; webytehub() { if [ "$1" = "-42" ]; then webytehub-42; else echo -e "\\033[31mComando invalido. Use: webytehub -42 ou webytehub-42\\033[0m"; fi; }`);
+            terminal.sendText('clear');
+            terminal.sendText('echo -e "\\033[32mTerminal Webytehub pronto! Digite: webytehub -42 ou webytehub-42\\033[0m"');
+        }
+    });
+
     // Registrar todos os comandos
     context.subscriptions.push(
         openPanelCommand,
@@ -382,7 +401,8 @@ export async function activate(context: vscode.ExtensionContext) {
         showToolStatusCommand,
         showDiagnosticsSummaryCommand,
         addHeader42Command,
-        addIncludeGuardCommand
+        addIncludeGuardCommand,
+        openWebytehubTerminalCommand
     );
 
     // Auto-verificar Norminette ao salvar

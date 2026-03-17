@@ -3,6 +3,7 @@ import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import { getPlatformService } from './platformService';
 
 const execAsync = promisify(exec);
@@ -499,6 +500,14 @@ export class MoulinetteService {
         const dir = path.dirname(filePath);
         const fileName = path.basename(filePath, '.c');
         
+        // Verificar se há mini-moulinette configurado
+        const config = vscode.workspace.getConfiguration('treinoPro');
+        const miniMoulinettePath = config.get<string>('miniMoulinettePath');
+        if (miniMoulinettePath) {
+            const result = await this.runMiniMoulinetteTests(filePath, miniMoulinettePath, startTime);
+            if (result) return result;
+        }
+
         // Encontrar exercicio correspondente
         const exercise = EXERCISE_TESTS[fileName];
         if (!exercise) {
@@ -911,6 +920,125 @@ ${testCases}
             
             return { hasLeaks: false, details: `Erro no valgrind: ${errorMsg}` };
         }
+    }
+
+    private async runMiniMoulinetteTests(filePath: string, miniPathConfig: string, startTime: number): Promise<MoulinetteResult | null> {
+        const miniPath = miniPathConfig.replace(/^~/, os.homedir());
+        
+        // Identificar modulo e exercicio do filePath
+        const match = filePath.match(/([C0-9]+)[\/\\](ex\d+)[\/\\]([^/\\]+\.c)$/);
+        if (!match) return null;
+        
+        const [, assignment, exercise, fileName] = match;
+        const testFilePathSource = path.join(miniPath, 'mini-moul', 'tests', assignment, exercise, fileName);
+        
+        if (!fs.existsSync(testFilePathSource)) {
+            return null; // Teste nao existe no mini-moulinette
+        }
+
+        const dir = path.dirname(filePath);
+        const testFileName = fileName.replace('.c', '_minimoul_test.c');
+        const testFilePathDest = path.join(dir, testFileName);
+        
+        try {
+            // Ler arquivo de teste do mini-moulinette
+            let testCode = fs.readFileSync(testFilePathSource, 'utf-8');
+            
+            // Substituir o include relativo pelo arquivo local
+            testCode = testCode.replace(/#include\s+"(?:\.\.\/)+([^"]+)"/, '#include "$1"');
+            
+            // Substituir constants.h header por definicoes locais, pois a biblioteca utils/constants.h nao estara presente
+            testCode = testCode.replace(/#include\s+"[^"]*constants\.h"/, `
+#define GREEN ""
+#define RED ""
+#define GREY ""
+#define DEFAULT ""
+#define CHECKMARK "OK"
+`);
+            
+            fs.writeFileSync(testFilePathDest, testCode);
+        } catch (error) {
+            console.error('Erro ao preparar teste do mini-moulinette:', error);
+            return null;
+        }
+
+        // Compilar com flags da 42
+        const executablePath = path.join(dir, fileName.replace('.c', '_minimoul'));
+        const compileResult = await this.compile(filePath, testFilePathDest, executablePath);
+
+        if (!compileResult.success) {
+            this.cleanupFiles(testFilePathDest, executablePath);
+            return {
+                success: false,
+                totalTests: 0,
+                passedTests: 0,
+                failedTests: 0,
+                testResults: [],
+                compileErrors: compileResult.errors,
+                memoryLeaks: false,
+                executionTime: Date.now() - startTime
+            };
+        }
+
+        // Executar e parsear output do mini-moulinette
+        const results = await this.executeMiniMoulinetteTests(executablePath);
+        
+        const leakResult = await this.checkMemoryLeaks(executablePath);
+        this.cleanupFiles(testFilePathDest, executablePath);
+
+        const passedTests = results.filter(t => t.passed).length;
+        
+        return {
+            success: passedTests === results.length && results.length > 0 && !leakResult.hasLeaks,
+            totalTests: results.length,
+            passedTests,
+            failedTests: results.length - passedTests,
+            testResults: results,
+            compileErrors: [],
+            memoryLeaks: leakResult.hasLeaks,
+            leakDetails: leakResult.details,
+            executionTime: Date.now() - startTime
+        };
+    }
+
+    private async executeMiniMoulinetteTests(executablePath: string): Promise<TestResult[]> {
+        let output = '';
+        try {
+            const { stdout, stderr } = await execAsync(`"${executablePath}"`, { timeout: 10000 });
+            output = stdout || stderr;
+        } catch (error: any) {
+            output = error.stdout || error.stderr || '';
+        }
+
+        const results: TestResult[] = [];
+        const lines = output.split('\\n').filter(l => l.trim().length > 0);
+        
+        for (const line of lines) {
+            // Parse common test syntax from mini-moulinette which formats with indices [i]
+            const match = line.match(/\\[(\\d+)\\]\\s+(.*?)\\s+(?:Expected(?:\\s+")?(.*?)(?:"?,)\\s+got(?:\\s+")?(.*?)"?|output(?:\\s+")?(.*?)"?\\s+as\\s+expected)/);
+            if (match) {
+                const [, num, desc, expected, actual, outputExpected] = match;
+                const passed = line.includes('OK') || line.includes('as expected') || expected === actual;
+                
+                results.push({
+                    name: desc.trim(),
+                    passed,
+                    expected: expected || outputExpected || 'OK',
+                    actual: actual || outputExpected || 'OK'
+                });
+            } else if (line.match(/\\[(\\d+)\\]/)) {
+                // If regex missed it but looks like a test line, add a generic result based on string includes
+                const passed = line.includes('OK') || line.includes('as expected');
+                results.push({
+                    name: line.replace(/.*\\[\\d+\\]/, '').trim(),
+                    passed,
+                    expected: 'OK',
+                    actual: passed ? 'OK' : 'Error'
+                });
+            }
+        }
+        
+        return results;
     }
 
     private async runGenericTests(filePath: string, startTime: number): Promise<MoulinetteResult> {

@@ -2,7 +2,7 @@
   "name": "treino-pro",
   "displayName": "Treino Pro",
   "description": "Extensao oficial do Treino Pro para treinar exercicios diretamente no VSCode com Norminette, testes automaticos e integracao com a plataforma",
-  "version": "1.0.0",
+  "version": "1.3.2",
   "publisher": "treino-pro",
   "icon": "assets/icon.png",
   "engines": {
@@ -82,6 +82,11 @@
         "command": "treinoPro.copilotExplain",
         "title": "Treino Pro: Copilot - Explicar Erro",
         "icon": "$(copilot)"
+      },
+      {
+        "command": "treinoPro.openWebytehubTerminal",
+        "title": "Treino Pro: Abrir Terminal Webytehub 42",
+        "icon": "$(terminal)"
       }
     ],
     "viewsContainers": {
@@ -97,15 +102,18 @@
       "treino-pro": [
         {
           "id": "treinoPro.exercises",
-          "name": "Exercicios"
+          "name": "Exercicios",
+          "icon": "$(file-code)"
         },
         {
           "id": "treinoPro.progress",
-          "name": "Progresso"
+          "name": "Progresso",
+          "icon": "$(graph)"
         },
         {
           "id": "treinoPro.tools",
-          "name": "Ferramentas"
+          "name": "Ferramentas",
+          "icon": "$(tools)"
         }
       ]
     },
@@ -161,6 +169,11 @@
           "type": "number",
           "default": 25,
           "description": "Profundidade maxima de aninhamento permitida"
+        },
+        "treinoPro.miniMoulinettePath": {
+          "type": "string",
+          "default": "~/mini-moulinette",
+          "description": "Caminho para a instalação do mini-moulinette (ex: ~/mini-moulinette)"
         }
       }
     },
@@ -229,7 +242,6 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "package": "vsce package"
@@ -242,16 +254,19 @@
     "@types/prompts": "^2.4.4"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "os": "^0.1.2",
-    "child_process": "^1.0.2",
-    "util": "^0.12.5",
-    "path": "^0.0.1",
-    "fs": "^0.0.1"
+    "node-fetch": "^3.3.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/treino-pro/vscode-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/treino-pro/vscode-extension/issues"
+  },
+  "homepage": "https://github.com/treino-pro/vscode-extension",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
   },
   "license": "MIT"
 }

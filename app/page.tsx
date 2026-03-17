@@ -1,5 +1,6 @@
 import { LandingHeader } from "@/components/landing/landing-header"
 import { HeroSection } from "@/components/landing/hero-section"
+import { ExtensionSection } from "@/components/landing/extension-section"
 import { DontPanicSection } from "@/components/landing/dont-panic-section"
 import { AboutSection } from "@/components/landing/about-section"
 import { LanguagesSection } from "@/components/landing/languages-section"
@@ -15,6 +16,7 @@ export default function Page() {
       <LandingHeader />
       <main className="flex-1">
         <HeroSection />
+        <ExtensionSection />
         <DontPanicSection />
         <AboutSection />
         <LanguagesSection />

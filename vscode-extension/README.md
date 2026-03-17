@@ -1,6 +1,14 @@
 # Treino Pro - Extensão VSCode
 
-Extensão oficial do **Treino Pro** para treinar exercícios diretamente no VSCode. Esta extensão oferece validação de código em tempo real com Norminette, testes automatizados, e integração com GitHub Copilot para produtividade máxima.
+<div align="center">
+  <img src="assets/icon.png" width="128" alt="Treino Pro Logo" />
+  <p><b>Pratique, Treine e Avance na Piscine da 42</b></p>
+  
+  [![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)](#)
+  [![Platform](https://img.shields.io/badge/platform-Treino%20Pro-success.svg)](#)
+</div>
+
+Extensão oficial do **Treino Pro** para treinar exercícios diretamente no VSCode. Esta extensão oferece validação de código em tempo real com Norminette, testes automatizados (integrados com Mini-Moulinette originária da 42), terminal dedicado unificado e integração com GitHub Copilot para produtividade máxima.
 
 ## Recursos Principais
 
@@ -11,12 +19,18 @@ Extensão oficial do **Treino Pro** para treinar exercícios diretamente no VSCo
 - **Verificação de comprimento de linhas**: Máximo de 80 caracteres por linha
 - **Validação de include guards**: Detecção correta de proteção contra inclusão dupla
 
-### 🧪 Testes Automatizados
-- **40+ exercícios testáveis**: Suporte completo para múltiplos tipos de exercício
-- **Validação de protótipos**: Verifica se as funções têm assinatura correta
-- **Memory leak detection**: Verificação automática com Valgrind (Linux/Mac)
+### 🧪 Testes Automatizados & Mini-Moulinette
+- **40+ exercícios testáveis**: Suporte completo para múltiplos tipos de exercício (C00 ao C13).
+- **Integração com Mini-Moulinette**: Verificações sequenciais robustas com detecção visual de falhas via "Expected X got Y".
+- **Validação de protótipos**: Verifica se as funções têm assinatura correta.
+- **Memory leak detection**: Verificação automática com Valgrind (Linux/Mac).
 - **Compilação com flags obrigatórias**: `-Wall -Wextra -Werror`
-- **Testes parametrizados**: Múltiplos casos de teste por função
+- **Testes parametrizados**: Múltiplos casos de teste por função.
+
+### 🚀 Terminal Webytehub 42 (Novo!)
+A extensão agora injeta rotinas consolidadas no VS Code integrando sua shell!
+- **Workspace Pré-Carregado**: Use `Treino Pro: Abrir Terminal Webytehub 42` (Ctrl+Shift+P).
+- **Único Comando**: Basta rodar `webytehub -42` e nós executaremos uma auditoria de estilo (Norminette) conectada ponta a ponta com a aprovação em massa da sua Bateria de Testes (`mini-moulinette`).
 
 ### 🤖 Integração GitHub Copilot
 - **Chat Participant `@norm`**: Comando dedicado para perguntas sobre Norminette

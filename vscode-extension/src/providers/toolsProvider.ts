@@ -43,6 +43,13 @@ const TOOLS: ToolDefinition[] = [
         description: 'Sincronizar progresso com a nuvem',
         icon: 'sync',
         command: 'treinoPro.syncProgress'
+    },
+    {
+        id: 'webytehub_terminal',
+        label: 'Terminal Webytehub 42',
+        description: 'Abrir terminal com atalhos mini-moulinette',
+        icon: 'terminal',
+        command: 'treinoPro.openWebytehubTerminal'
     }
 ];
 

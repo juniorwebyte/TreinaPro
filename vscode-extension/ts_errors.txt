@@ -1,0 +1,73 @@
+﻿src/extension.ts(54,28): error TS2673: Constructor of class 'ExercisePanelManager' is private and only accessible within the class declaration.
+src/extension.ts(443,28): error TS2339: Property 'fs' does not exist on type 'typeof workspace'.
+src/extension.ts(450,28): error TS2339: Property 'fs' does not exist on type 'typeof workspace'.
+src/providers/exercisesProvider.ts(6,14): error TS2416: Property 'onDidChangeTreeData' in type 'ExercisesProvider' is not assignable to the same property in base type 'TreeDataProvider<ExerciseItem>'.
+  Type 'Event<void | ExerciseItem | null | undefined>' is not assignable to type 'Event<ExerciseItem | null | undefined>'.
+    Type 'void | ExerciseItem | null | undefined' is not assignable to type 'ExerciseItem | null | undefined'.
+      Type 'void' is not assignable to type 'ExerciseItem | null | undefined'.
+src/providers/exercisesProvider.ts(81,29): error TS2673: Constructor of class 'ThemeIcon' is private and only accessible within the class declaration.
+src/providers/exercisesProvider.ts(85,19): error TS2673: Constructor of class 'ThemeIcon' is private and only accessible within the class declaration.
+src/providers/exercisesProvider.ts(86,19): error TS2673: Constructor of class 'ThemeIcon' is private and only accessible within the class declaration.
+src/providers/exercisesProvider.ts(95,13): error TS2322: Type 'MarkdownString' is not assignable to type 'string'.
+src/providers/exercisesProvider.ts(96,13): error TS2532: Object is possibly 'undefined'.
+src/providers/exercisesProvider.ts(96,26): error TS2339: Property 'appendMarkdown' does not exist on type 'string'.
+src/providers/exercisesProvider.ts(97,13): error TS2532: Object is possibly 'undefined'.
+src/providers/exercisesProvider.ts(97,26): error TS2339: Property 'appendMarkdown' does not exist on type 'string'.
+src/providers/exercisesProvider.ts(98,13): error TS2532: Object is possibly 'undefined'.
+src/providers/exercisesProvider.ts(98,26): error TS2339: Property 'appendMarkdown' does not exist on type 'string'.
+src/providers/index.ts(5,10): error TS2305: Module '"./codeActionsProvider"' has no exported member 'CodeActionsProvider'.
+src/providers/progressProvider.ts(14,14): error TS2416: Property 'onDidChangeTreeData' in type 'ProgressProvider' is not assignable to the same property in base type 'TreeDataProvider<ProgressItem>'.
+  Type 'Event<void | ProgressItem | null | undefined>' is not assignable to type 'Event<ProgressItem | null | undefined>'.
+    Type 'void | ProgressItem | null | undefined' is not assignable to type 'ProgressItem | null | undefined'.
+      Type 'void' is not assignable to type 'ProgressItem | null | undefined'.
+src/providers/progressProvider.ts(82,25): error TS2673: Constructor of class 'ThemeIcon' is private and only accessible within the class declaration.
+src/providers/toolsProvider.ts(51,14): error TS2416: Property 'onDidChangeTreeData' in type 'ToolsProvider' is not assignable to the same property in base type 'TreeDataProvider<ToolItem>'.
+  Type 'Event<void | ToolItem | null | undefined>' is not assignable to type 'Event<ToolItem | null | undefined>'.
+    Type 'void | ToolItem | null | undefined' is not assignable to type 'ToolItem | null | undefined'.
+      Type 'void' is not assignable to type 'ToolItem | null | undefined'.
+src/providers/toolsProvider.ts(71,25): error TS2673: Constructor of class 'ThemeIcon' is private and only accessible within the class declaration.
+src/services/copilotService.ts(174,40): error TS2339: Property 'chat' does not exist on type 'typeof import("vscode")'.
+src/services/copilotService.ts(176,47): error TS2339: Property 'joinPath' does not exist on type 'typeof Uri'.
+src/services/copilotService.ts(176,64): error TS2339: Property 'extensionUri' does not exist on type 'ExtensionContext'.
+src/services/copilotService.ts(194,25): error TS2694: Namespace '"vscode"' has no exported member 'ChatRequest'.
+src/services/copilotService.ts(195,25): error TS2694: Namespace '"vscode"' has no exported member 'ChatContext'.
+src/services/copilotService.ts(196,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(198,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(235,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(238,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(278,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(281,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(318,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(321,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(345,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(347,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(374,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(376,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(406,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(409,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(437,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResponseStream'.
+src/services/copilotService.ts(440,23): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(460,24): error TS2694: Namespace '"vscode"' has no exported member 'ChatResult'.
+src/services/copilotService.ts(461,25): error TS2694: Namespace '"vscode"' has no exported member 'ChatContext'.
+src/services/copilotService.ts(463,37): error TS2694: Namespace '"vscode"' has no exported member 'ChatFollowup'.
+src/services/copilotService.ts(464,33): error TS2694: Namespace '"vscode"' has no exported member 'ChatFollowup'.
+src/services/diagnosticsService.ts(339,32): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/diagnosticsService.ts(346,36): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/diagnosticsService.ts(349,36): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/diagnosticsService.ts(352,36): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/diagnosticsService.ts(470,26): error TS2353: Object literal may only specify known properties, and 'kind' does not exist in type 'QuickPickItem'.
+src/services/diagnosticsService.ts(470,39): error TS2339: Property 'QuickPickItemKind' does not exist on type 'typeof import("vscode")'.
+src/services/diagnosticsService.ts(482,13): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'title' does not exist in type 'QuickPickOptions'.
+src/services/norminetteService.ts(753,32): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/norminetteService.ts(757,32): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/platformService.ts(267,32): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/platformService.ts(275,32): error TS2339: Property 'backgroundColor' does not exist on type 'StatusBarItem'.
+src/services/platformService.ts(440,33): error TS2353: Object literal may only specify known properties, and 'kind' does not exist in type 'QuickPickItem'.
+src/services/platformService.ts(440,46): error TS2339: Property 'QuickPickItemKind' does not exist on type 'typeof import("vscode")'.
+src/services/platformService.ts(454,13): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'title' does not exist in type 'QuickPickOptions'.
+src/services/platformService.ts(458,23): error TS2339: Property 'label' does not exist on type 'string[]'.
+src/services/platformService.ts(462,30): error TS2339: Property 'label' does not exist on type 'string[]'.

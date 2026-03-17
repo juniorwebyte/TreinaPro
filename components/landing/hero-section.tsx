@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Code2, Terminal, Braces, Hash, FileCode, GitBranch, Bug, Cpu, Binary, Database, Globe, Palette, FileJson, Server, GraduationCap } from "lucide-react"
 
@@ -69,12 +70,14 @@ export function HeroSection() {
       </div>
 
       <div className="animate-slide-up relative z-10 flex max-w-4xl flex-col items-center gap-8 text-center">
-        {/* Logo */}
-        <div className="relative">
-          <img
+        {/* Logo Otimizado */}
+        <div className="relative h-[320px] w-[320px] md:h-[440px] md:w-[440px]">
+          <Image
             src="/images/logo.png"
             alt="Treino PRO Logo"
-            className="relative h-[320px] w-[320px] rounded-2xl object-contain md:h-[440px] md:w-[440px]"
+            fill
+            priority
+            className="rounded-2xl object-contain drop-shadow-xl"
           />
         </div>
 

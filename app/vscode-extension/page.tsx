@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { 
@@ -29,6 +29,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { TerminalAnimation } from "@/components/ui/terminal-animation"
 
 const FEATURES = [
   {
@@ -55,6 +56,16 @@ const FEATURES = [
     icon: RefreshCw,
     title: "Sincronizacao",
     description: "Sincronize seu progresso com a plataforma web. Continue de onde parou em qualquer dispositivo."
+  },
+  {
+    icon: CheckCircle,
+    title: "Bateria de Testes Mini-Moulinette",
+    description: "Integracao total com o sistema mini-moulinette local para validacao dinamica de exercicios."
+  },
+  {
+    icon: Terminal,
+    title: "Terminal Webytehub 42",
+    description: "Atalho direto na extensao para abrir terminais pré-configurados (alias webytehub -42)."
   },
   {
     icon: GitBranch,
@@ -158,6 +169,12 @@ const COMMANDS = [
     title: "Copilot - Explicar Erro",
     description: "Usa o GitHub Copilot para explicar um erro selecionado e como corrigi-lo.",
     shortcut: null
+  },
+  {
+    command: "treinoPro.openWebytehubTerminal",
+    title: "Terminal Webytehub 42",
+    description: "Abre um terminal pré-configurado com atalhos para executar a norminette e mini-moulinette em sequencia.",
+    shortcut: null
   }
 ]
 
@@ -179,22 +196,12 @@ export default function VSCodeExtensionPage() {
   const handleDownload = async () => {
     setDownloading(true)
     try {
-      // Baixar a extensao da API que gera o .vsix
-      const response = await fetch('/api/download-extension')
-      
-      if (!response.ok) {
-        throw new Error('Falha ao baixar extensao')
-      }
-      
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.href = url
-      link.download = 'treino-pro-v1.0.0.vsix'
+      link.href = '/treino-pro-1.3.2.vsix'
+      link.download = 'treino-pro-v1.3.2.vsix'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Erro ao baixar:', error)
       alert('Erro ao baixar a extensao. Por favor, tente novamente.')
@@ -267,7 +274,7 @@ export default function VSCodeExtensionPage() {
               ) : (
                 <>
                   <Download className="size-5" />
-                  Download v1.0.0
+                  Download v1.3.2
                 </>
               )}
             </Button>
@@ -665,45 +672,44 @@ void    ft_swap(int *a, int *b)
               <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
                 <Terminal className="size-5 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Usando no Terminal do VSCode</h3>
+              <h3 className="text-xl font-semibold text-foreground">A Nova Bateria de Testes (Terminal Webytehub 42)</h3>
             </div>
             
-            <div className="space-y-4 text-muted-foreground">
-              <p>
-                A extensao utiliza o terminal integrado do VSCode para compilar e testar seu codigo. 
-                Veja como funciona:
-              </p>
-              
-              <div className="rounded-lg border border-border bg-secondary/30 p-4">
-                <h4 className="mb-3 font-semibold text-foreground">1. Compilacao</h4>
-                <div className="rounded bg-background p-3 font-mono text-sm">
-                  <span className="text-green-500">$</span> gcc -Wall -Wextra -Werror ft_putchar.c -o test
-                </div>
-                <p className="mt-2 text-sm">
-                  A extensao compila automaticamente com todas as flags obrigatorias da 42.
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-6 text-muted-foreground">
+                <p>
+                  Alem do nosso menu visual de exercicios, a extensao do <strong>Treino Pro</strong> injeta 
+                  um atalho direto para executar a bateria de testes automatizados e a norminette em uma 
+                  unica chamada pelo terminal da Webytehub.
                 </p>
+                
+                <div className="rounded-lg border border-border bg-secondary/30 p-4">
+                  <h4 className="mb-3 font-semibold text-foreground flex items-center gap-2">
+                    <span className="bg-primary/20 text-primary w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">1</span> 
+                    Abra o Terminal
+                  </h4>
+                  <p className="text-sm">
+                    Utilize o atalho <em>Terminal Webytehub 42</em> no menu Ferramentas da extensão ou pesquise pelo comando <code>Treino Pro: Abrir Terminal Webytehub 42</code>.
+                  </p>
+                </div>
+                
+                <div className="rounded-lg border border-border bg-secondary/30 p-4">
+                  <h4 className="mb-3 font-semibold text-foreground flex items-center gap-2">
+                    <span className="bg-primary/20 text-primary w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span> 
+                    Execute a Validacao
+                  </h4>
+                  <p className="text-sm">
+                    Um console pré-configurado será aberto. Agora é só digitar <code>webytehub -42</code>. 
+                    A extensão usará os executáveis locais da sua máquina para validar o estilo e compilar a Mini-Moulinette sequencialmente.
+                  </p>
+                </div>
               </div>
-              
-              <div className="rounded-lg border border-border bg-secondary/30 p-4">
-                <h4 className="mb-3 font-semibold text-foreground">2. Execucao de Testes</h4>
-                <div className="rounded bg-background p-3 font-mono text-sm">
-                  <span className="text-green-500">$</span> ./test
-                  <br />
-                  <span className="text-muted-foreground"># Saida dos testes automatizados</span>
+
+              {/* Animacao aqui no grid lateral */}
+              <div className="flex items-center justify-center w-full">
+                <div className="w-full max-w-[400px]">
+                  <TerminalAnimation />
                 </div>
-                <p className="mt-2 text-sm">
-                  Os testes verificam casos de borda, valores limites e comportamentos esperados.
-                </p>
-              </div>
-              
-              <div className="rounded-lg border border-border bg-secondary/30 p-4">
-                <h4 className="mb-3 font-semibold text-foreground">3. Verificacao de Memory Leaks</h4>
-                <div className="rounded bg-background p-3 font-mono text-sm">
-                  <span className="text-green-500">$</span> valgrind --leak-check=full ./test
-                </div>
-                <p className="mt-2 text-sm">
-                  Em sistemas Linux/Mac, a extensao pode verificar vazamentos de memoria com Valgrind.
-                </p>
               </div>
             </div>
           </div>

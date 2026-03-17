@@ -122,12 +122,41 @@ export class ExercisePanelManager {
             width: 32px;
             height: 32px;
             background: linear-gradient(135deg, var(--accent), var(--success));
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 900;
             font-size: 14px;
+            font-family: inherit;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header-badges {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .badge-norm {
+            background-color: rgba(78, 201, 176, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(78, 201, 176, 0.3);
+        }
+        
+        .badge-moul {
+            background-color: rgba(220, 220, 170, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(220, 220, 170, 0.3);
         }
         
         .stats-grid {
@@ -290,12 +319,62 @@ export class ExercisePanelManager {
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Terminal Animation Styles */
+        .terminal-demo {
+            background: #181818;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .terminal-header {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+        
+        .terminal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-top: 5px;
+        }
+        
+        .line { opacity: 0; animation: fadeIn 0.1s forwards; }
+        .line .dollar { color: var(--success); }
+        .line.info { color: #4fc1ff; font-weight: 500;}
+        .line.success { color: var(--success); font-weight: bold; }
+        .blink { animation: blink 1s step-end infinite; }
+        
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes blink { 50% { opacity: 0; } }
+
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="logo">42</div>
-        <h1>Guia Piscine</h1>
+        <div class="logo">TP</div>
+        <h1>Treino Pro Workspace</h1>
+        
+        <div class="header-badges">
+            <span class="badge badge-norm">Norminette Ready</span>
+            <span class="badge badge-moul">Mini-Moulinette Powered</span>
+        </div>
     </div>
     
     <div id="stats" class="stats-grid">
@@ -317,6 +396,20 @@ export class ExercisePanelManager {
         </div>
     </div>
     
+    <div class="section-title">Como Validar seus Exercícios</div>
+    <div class="terminal-demo">
+        <div class="terminal-header">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <span style="margin-left:auto; color: #888; font-size:10px;">Webytehub Terminal (Ctrl+Shift+P)</span>
+        </div>
+        <div id="term-body" class="terminal-body">
+            <!-- lines will be appended here -->
+            <span id="cursor" style="display:inline-block; width:8px; height:15px; background:#aaa;" class="blink"></span>
+        </div>
+    </div>
+
     <div class="section-title">Exercicios</div>
     
     <div id="exercises">
@@ -404,6 +497,46 @@ export class ExercisePanelManager {
         function loadExercise(id) {
             vscode.postMessage({ command: 'loadExercise', exerciseId: id });
         }
+        
+        // Terminal Animation Script
+        function runTerminalAnimation() {
+            const sequence = [
+              { text: '<span class="dollar">$</span> webytehub -42', delay: 800 },
+              { text: '<span class="info">Executando Norminette...</span>', delay: 1800 },
+              { text: '<span class="success">Norme: OK!</span>', delay: 2200 },
+              { text: '<span class="info">Executando Mini-Moulinette...</span>', delay: 3500 },
+              { text: '<span class="success">[OK] ft_putchar.c compila com sucesso</span>', delay: 4200 },
+              { text: '<span class="success">✓ Teste 1: Passou</span>', delay: 4600 },
+              { text: '<span class="success">✓ Teste 2: Passou</span>', delay: 4900 },
+              { text: '<span class="success">Todos os testes passaram!</span>', delay: 5200 },
+              { text: '<span class="dollar">$</span> ', delay: 7000 }
+            ];
+            
+            const termBody = document.getElementById('term-body');
+            const cursor = document.getElementById('cursor');
+            let timeoutIds = [];
+            
+            function play() {
+                const lines = termBody.querySelectorAll('.line');
+                lines.forEach(l => l.remove());
+                
+                sequence.forEach(item => {
+                    const id = setTimeout(() => {
+                        const div = document.createElement('div');
+                        div.className = 'line';
+                        div.innerHTML = item.text;
+                        termBody.insertBefore(div, cursor);
+                    }, item.delay);
+                    timeoutIds.push(id);
+                });
+                
+                const resetId = setTimeout(play, 9500);
+                timeoutIds.push(resetId);
+            }
+            play();
+        }
+        
+        runTerminalAnimation();
     </script>
 </body>
 </html>`;
